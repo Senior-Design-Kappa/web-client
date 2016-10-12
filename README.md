@@ -17,6 +17,7 @@ Finally, build via `npm`. The files should be outputted in `/build`. (This step 
 The following libraries are used and vendored:
  - jQuery (v3.1.1)
  - React (v15.3.2)
+ - Babel (v6.16.0)
 
 ## Babel Presets
 Web-client uses the following presets:

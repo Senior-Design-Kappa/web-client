@@ -1,0 +1,24 @@
+{
+  "name": "web-client",
+  "version": "0.0.1",
+  "description": "web client",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel src -d lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Senior-Design-Kappa/web-client.git"
+  },
+  "author": "David Liao",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Senior-Design-Kappa/web-client/issues"
+  },
+  "homepage": "https://github.com/Senior-Design-Kappa/web-client#readme",
+  "devDependencies": {
+    "babel-cli": "^6.16.0",
+    "babel-preset-latest": "^6.16.0"
+  }
+}

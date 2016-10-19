@@ -3,10 +3,10 @@ class VideoPlayer extends React.Component {
 
   constructor(props) {
     super(props);
-    this.playing = false;
   }
 
   componentDidMount() {
+    this.playing = false;
     this.video.style.display = "none";
     this.video.load();
     this.audio.load();

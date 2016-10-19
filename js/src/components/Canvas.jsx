@@ -2,8 +2,11 @@ let React = require("react");
 
 class Canvas extends React.Component {
 
-  Constructor(props) {
-    Super(props);
+  constructor(props) {
+    super(props);
+  }
+
+  componentDidMount() {
     this.flag = false;
     this.dot_flag = false;
     this.strokeStyle = "black";
@@ -13,9 +16,6 @@ class Canvas extends React.Component {
     this.currX = 0;
     this.prevY = 0;
     this.currY = 0;
-  }
-
-  componentDidMount() {
 
     this.canvas.addEventListener("mousemove", (e) => {
       this.findxy('move', e)

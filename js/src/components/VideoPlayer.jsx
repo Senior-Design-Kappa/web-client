@@ -77,10 +77,16 @@ class VideoPlayer extends React.Component {
   }
 
   render() {
+    this.videoCanvasStyle = {
+      position: "absolute",
+      left: 0,
+      top: 0,
+      zIndex: 0
+    };
     return (
       <div className="videoPlayer">
         <canvas ref={(c) => {this.canvas = c; this.ctx = this.canvas.getContext('2d');}}
-          id="videoCanvas" width="800" height="600"></canvas>
+          id="videoCanvas" width="800" height="600" style={this.videoCanvasStyle} />
         <video ref={(v) => {this.video = v;}} id="sourceVideo" controls>
           <source src="http://clips.vorwaerts-gmbh.de/VfE_html5.mp4" type="video/mp4"/>
         </video>

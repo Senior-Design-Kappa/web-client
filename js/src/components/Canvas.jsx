@@ -83,7 +83,7 @@ class Canvas extends React.Component {
     return (
       <div className="whiteboard">
         <canvas style={this.style} ref={(c) => {this.canvas = c; this.ctx = this.canvas.getContext('2d');}}
-          id="whiteboardCanvas" width="800" height="600" />
+          id="whiteboardCanvas" width="800" height="550" />
       </div>
     );
   }

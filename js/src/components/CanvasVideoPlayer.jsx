@@ -31,7 +31,6 @@ class CanvasVideoPlayer extends React.Component {
   }
 
   componentDidMount() {
-
     let fireSyncEvent = (e) => {
       let state = JSON.stringify({
         messageType: "SYNC_VIDEO",

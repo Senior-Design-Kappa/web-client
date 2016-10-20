@@ -38,11 +38,14 @@ class VideoPlayer extends React.Component {
     this.loop();
     this.audio.currentTime = this.video.currentTime;
 		this.audio.play();
+
+    this.videoPlayer.dispatchEvent(new Event("vp-play"));
   }
 
   pause() {
     this.playing = false;
     this.audio.pause();
+    this.videoPlayer.dispatchEvent(new Event("vp-pause"));
   }
 
   playPause() {
@@ -50,6 +53,22 @@ class VideoPlayer extends React.Component {
       this.pause();
     } else {
       this.play();
+    }
+  }
+
+  getState() {
+    return {
+      currentTime: this.video.currentTime,
+      playing: this.playing
+    };
+  }
+
+  setState(newState) {
+    this.video.currentTime = newState.currentTime;
+    if (newState.playing) {
+      this.play();
+    } else {
+      this.pause();
     }
   }
 
@@ -84,7 +103,7 @@ class VideoPlayer extends React.Component {
       zIndex: 0
     };
     return (
-      <div className="videoPlayer">
+      <div ref={(vp) => {this.videoPlayer = vp;}} className="videoPlayer">
         <canvas ref={(c) => {this.canvas = c; this.ctx = this.canvas.getContext('2d');}}
           id="videoCanvas" width="800" height="600" style={this.videoCanvasStyle} />
         <video ref={(v) => {this.video = v;}} id="sourceVideo" controls>

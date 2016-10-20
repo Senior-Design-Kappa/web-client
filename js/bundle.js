@@ -4351,7 +4351,7 @@
 	    var _this = _possibleConstructorReturn(this, (CanvasVideoPlayer.__proto__ || Object.getPrototypeOf(CanvasVideoPlayer)).call(this, props));
 
 	    _this.roomID = window.location.href.split("/").pop();
-	    _this.ws = new WebSocket("ws://localhost:8000/connect/" + _this.roomID);
+	    _this.ws = new WebSocket("ws://159.203.88.91:8000/connect/" + _this.roomID);
 	    _this.bindSocket();
 	    _this.received = false;
 	    return _this;

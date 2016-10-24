@@ -60,7 +60,10 @@
 	var ReactDOM = __webpack_require__(42);
 
 	$(function () {
-	  ReactDOM.render(React.createElement(Room, null), document.getElementById('content'));
+	  var content = document.getElementById('content');
+	  var websocketAddr = content.getAttribute('websocketAddr');
+	  var roomId = content.getAttribute('roomId');
+	  ReactDOM.render(React.createElement(Room, { websocketAddr: websocketAddr, roomId: roomId }), content);
 	});
 
 /***/ },
@@ -96,7 +99,7 @@
 	      return React.createElement(
 	        "div",
 	        { className: "main" },
-	        React.createElement(CanvasVideoPlayer, null),
+	        React.createElement(CanvasVideoPlayer, { websocketAddr: this.props.websocketAddr, roomId: this.props.roomId }),
 	        React.createElement(Chat, null)
 	      );
 	    }
@@ -4348,10 +4351,10 @@
 	  function CanvasVideoPlayer(props) {
 	    _classCallCheck(this, CanvasVideoPlayer);
 
+	    //this.roomID = window.location.href.split("/").pop()
 	    var _this = _possibleConstructorReturn(this, (CanvasVideoPlayer.__proto__ || Object.getPrototypeOf(CanvasVideoPlayer)).call(this, props));
 
-	    _this.roomID = window.location.href.split("/").pop();
-	    _this.ws = new WebSocket("ws://159.203.88.91:8000/connect/" + _this.roomID);
+	    _this.ws = new WebSocket(props.websocketAddr + props.roomId);
 	    _this.bindSocket();
 	    _this.received = false;
 	    return _this;

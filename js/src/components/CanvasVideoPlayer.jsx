@@ -4,8 +4,8 @@ let Canvas = require("./Canvas")
 class CanvasVideoPlayer extends React.Component {
   constructor(props) {
     super(props);
-    this.roomID = window.location.href.split("/").pop()
-    this.ws = new WebSocket("ws://159.203.88.91:8000/connect/" + this.roomID);
+    //this.roomID = window.location.href.split("/").pop()
+    this.ws = new WebSocket(props.websocketAddr + props.roomId);
     this.bindSocket();
     this.received = false;
   }

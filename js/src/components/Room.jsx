@@ -6,7 +6,7 @@ class Room extends React.Component {
   render() {
     return (
       <div className="main">
-        <CanvasVideoPlayer />
+        <CanvasVideoPlayer websocketAddr={this.props.websocketAddr} roomId={this.props.roomId} />
         <Chat />
       </div>
     );

@@ -4351,7 +4351,6 @@
 	  function CanvasVideoPlayer(props) {
 	    _classCallCheck(this, CanvasVideoPlayer);
 
-	    //this.roomID = window.location.href.split("/").pop()
 	    var _this = _possibleConstructorReturn(this, (CanvasVideoPlayer.__proto__ || Object.getPrototypeOf(CanvasVideoPlayer)).call(this, props));
 
 	    _this.ws = new WebSocket(props.websocketAddr + props.roomId);
@@ -4380,6 +4379,16 @@
 	          case "SYNC_VIDEO":
 	            _this2.received = true;
 	            _this2.video.setState(message.videoState);
+	          case "SYNC_CANVAS":
+	            if (message.message == "DRAW_LINE") {
+	              _this2.canvas.drawLine(message.prevX, message.prevY, message.currX, message.currY);
+	            } else if (message.message == "SYNC") {
+	              _this2.canvas.clear();
+	              for (var i = 0; i < message.lines.length; i++) {
+	                var line = message.lines[i];
+	                _this2.canvas.drawLine(line.prevX, line.prevY, line.currX, line.currY);
+	              }
+	            }
 	        }
 	      };
 	    }
@@ -4388,7 +4397,7 @@
 	    value: function componentDidMount() {
 	      var _this3 = this;
 
-	      var fireSyncEvent = function fireSyncEvent(e) {
+	      var fireVideoSyncEvent = function fireVideoSyncEvent(e) {
 	        var state = JSON.stringify({
 	          messageType: "SYNC_VIDEO",
 	          message: "",
@@ -4400,8 +4409,8 @@
 	        }
 	        _this3.received = false;
 	      };
-	      this.video.videoPlayer.addEventListener("vp-pause", fireSyncEvent, true);
-	      this.video.videoPlayer.addEventListener("vp-play", fireSyncEvent, true);
+	      this.video.videoPlayer.addEventListener("vp-pause", fireVideoSyncEvent, true);
+	      this.video.videoPlayer.addEventListener("vp-play", fireVideoSyncEvent, true);
 	    }
 	  }, {
 	    key: "render",
@@ -4411,11 +4420,29 @@
 	      return React.createElement(
 	        "div",
 	        { className: "main" },
-	        React.createElement(VideoPlayer, { ref: function ref(vp) {
+	        React.createElement(VideoPlayer, {
+	          ref: function ref(vp) {
 	            _this4.video = vp;
 	          } }),
-	        React.createElement(Canvas, null)
+	        React.createElement(Canvas, {
+	          ref: function ref(c) {
+	            _this4.canvas = c;
+	          },
+	          sendDrawMessage: this.sendDrawMessage.bind(this) })
 	      );
+	    }
+	  }, {
+	    key: "sendDrawMessage",
+	    value: function sendDrawMessage(prevX, prevY, currX, currY) {
+	      var drawMessage = JSON.stringify({
+	        messageType: "SYNC_CANVAS",
+	        message: "DRAW_LINE",
+	        prevX: prevX,
+	        prevY: prevY,
+	        currX: currX,
+	        currY: currY
+	      });
+	      this.ws.send(drawMessage);
 	    }
 	  }]);
 
@@ -4621,6 +4648,11 @@
 	  }
 
 	  _createClass(Canvas, [{
+	    key: "clear",
+	    value: function clear() {
+	      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+	    }
+	  }, {
 	    key: "componentDidMount",
 	    value: function componentDidMount() {
 	      var _this2 = this;
@@ -4652,9 +4684,15 @@
 	  }, {
 	    key: "draw",
 	    value: function draw() {
+	      this.drawLine(this.prevX, this.prevY, this.currX, this.currY);
+	      this.props.sendDrawMessage(this.prevX, this.prevY, this.currX, this.currY);
+	    }
+	  }, {
+	    key: "drawLine",
+	    value: function drawLine(prevX, prevY, currX, currY) {
 	      this.ctx.beginPath();
-	      this.ctx.moveTo(this.prevX, this.prevY);
-	      this.ctx.lineTo(this.currX, this.currY);
+	      this.ctx.moveTo(prevX, prevY);
+	      this.ctx.lineTo(currX, currY);
 	      this.ctx.strokeStyle = this.strokeStyle;
 	      this.ctx.lineWidth = this.lineWidth;
 	      this.ctx.stroke();
@@ -4716,6 +4754,10 @@
 
 	  return Canvas;
 	}(React.Component);
+
+	Canvas.propTypes = {
+	  sendDrawMessage: React.PropTypes.func
+	};
 
 	module.exports = Canvas;
 

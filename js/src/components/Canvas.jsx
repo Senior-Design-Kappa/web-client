@@ -1,9 +1,12 @@
 let React = require("react");
 
 class Canvas extends React.Component {
-
   constructor(props) {
     super(props);
+  }
+
+  clear() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
   componentDidMount() {
@@ -33,9 +36,14 @@ class Canvas extends React.Component {
   }
 
   draw() {
+    this.drawLine(this.prevX, this.prevY, this.currX, this.currY);
+    this.props.sendDrawMessage(this.prevX, this.prevY, this.currX, this.currY);
+  }
+
+  drawLine(prevX, prevY, currX, currY) {
     this.ctx.beginPath();
-    this.ctx.moveTo(this.prevX, this.prevY);
-    this.ctx.lineTo(this.currX, this.currY);
+    this.ctx.moveTo(prevX, prevY);
+    this.ctx.lineTo(currX, currY);
     this.ctx.strokeStyle = this.strokeStyle;
     this.ctx.lineWidth = this.lineWidth;
     this.ctx.stroke();
@@ -88,5 +96,9 @@ class Canvas extends React.Component {
     );
   }
 }
+
+Canvas.propTypes = {
+    sendDrawMessage: React.PropTypes.func,
+};
 
 module.exports = Canvas;

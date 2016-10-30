@@ -5,7 +5,6 @@ class CanvasVideoPlayer extends React.Component {
   constructor(props) {
     super(props);
     this.ws = new WebSocket(props.websocketAddr + props.roomId);
-    this.bindSocket();
     this.received = false;
   }
 
@@ -19,9 +18,12 @@ class CanvasVideoPlayer extends React.Component {
 
     this.ws.onmessage = (e) => {
       let message = JSON.parse(e.data);
+      console.log(message);
       switch (message.messageType) {
         case "INIT":
           this.clientID = message.hash;
+          this.video.setState(message.videoState);
+          this.canvas.drawLines(message.lines);
         case "SYNC_VIDEO":
           this.received = true;
           this.video.setState(message.videoState);
@@ -30,41 +32,39 @@ class CanvasVideoPlayer extends React.Component {
             this.canvas.drawLine(message.prevX, message.prevY, message.currX, message.currY);
           } else if (message.message == "SYNC") {
             this.canvas.clear();
-            for (var i = 0; i < message.lines.length; i++) {
-              let line = message.lines[i];
-              this.canvas.drawLine(line.prevX, line.prevY, line.currX, line.currY);
-            }
+            this.canvas.drawLines(message.lines);
           }
       }
     }
   }
 
   componentDidMount() {
-    let fireVideoSyncEvent = (e) => {
-      let state = JSON.stringify({
-        messageType: "SYNC_VIDEO",
-        message: "",
-        videoState: this.video.getState()
-      });
-      if (!this.received) { // do not fire if the change was from a sync
-        this.ws.send(state);
-      }
-      this.received = false;
-    }
-    this.video.videoPlayer.addEventListener("vp-pause", fireVideoSyncEvent, true);
-    this.video.videoPlayer.addEventListener("vp-play", fireVideoSyncEvent, true);
+    this.bindSocket();
   }
 
   render() {
     return (
       <div className="main">
         <VideoPlayer 
-          ref={(vp) => {this.video = vp;}} />
+          ref={(vp) => {this.video = vp;}} 
+          sendVideoSyncMessage={this.sendVideoSyncMessage.bind(this)} />
         <Canvas 
           ref={(c) => {this.canvas = c;}} 
           sendDrawMessage={this.sendDrawMessage.bind(this)} />
       </div>
     );
+  }
+
+  sendVideoSyncMessage(state) {
+    let videoMessage = JSON.stringify({
+      messageType: "SYNC_VIDEO",
+      message: "",
+      videoState: {
+        playing: state.playing,
+        currentTime: state.currentTime,
+      },
+    });
+    this.ws.send(videoMessage);
   }
 
   sendDrawMessage(prevX, prevY, currX, currY) {

@@ -20,6 +20,7 @@ class VideoPlayer extends React.Component {
 
     this.canvas.addEventListener('click', () => {
       this.playPause();
+      this.props.sendVideoSyncMessage(this.getState());
     });
 
     this.video.addEventListener('timeupdate', () => {
@@ -115,6 +116,10 @@ class VideoPlayer extends React.Component {
       </div>
     );
   }
+}
+
+VideoPlayer.propTypes = {
+  sendVideoSyncMessage: React.PropTypes.func,
 }
 
 module.exports = VideoPlayer;

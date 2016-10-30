@@ -4354,7 +4354,6 @@
 	    var _this = _possibleConstructorReturn(this, (CanvasVideoPlayer.__proto__ || Object.getPrototypeOf(CanvasVideoPlayer)).call(this, props));
 
 	    _this.ws = new WebSocket(props.websocketAddr + props.roomId);
-	    _this.bindSocket();
 	    _this.received = false;
 	    return _this;
 	  }
@@ -4373,9 +4372,12 @@
 
 	      this.ws.onmessage = function (e) {
 	        var message = JSON.parse(e.data);
+	        console.log(message);
 	        switch (message.messageType) {
 	          case "INIT":
 	            _this2.clientID = message.hash;
+	            _this2.video.setState(message.videoState);
+	            _this2.canvas.drawLines(message.lines);
 	          case "SYNC_VIDEO":
 	            _this2.received = true;
 	            _this2.video.setState(message.videoState);
@@ -4384,10 +4386,7 @@
 	              _this2.canvas.drawLine(message.prevX, message.prevY, message.currX, message.currY);
 	            } else if (message.message == "SYNC") {
 	              _this2.canvas.clear();
-	              for (var i = 0; i < message.lines.length; i++) {
-	                var line = message.lines[i];
-	                _this2.canvas.drawLine(line.prevX, line.prevY, line.currX, line.currY);
-	              }
+	              _this2.canvas.drawLines(message.lines);
 	            }
 	        }
 	      };
@@ -4395,41 +4394,40 @@
 	  }, {
 	    key: "componentDidMount",
 	    value: function componentDidMount() {
-	      var _this3 = this;
-
-	      var fireVideoSyncEvent = function fireVideoSyncEvent(e) {
-	        var state = JSON.stringify({
-	          messageType: "SYNC_VIDEO",
-	          message: "",
-	          videoState: _this3.video.getState()
-	        });
-	        if (!_this3.received) {
-	          // do not fire if the change was from a sync
-	          _this3.ws.send(state);
-	        }
-	        _this3.received = false;
-	      };
-	      this.video.videoPlayer.addEventListener("vp-pause", fireVideoSyncEvent, true);
-	      this.video.videoPlayer.addEventListener("vp-play", fireVideoSyncEvent, true);
+	      this.bindSocket();
 	    }
 	  }, {
 	    key: "render",
 	    value: function render() {
-	      var _this4 = this;
+	      var _this3 = this;
 
 	      return React.createElement(
 	        "div",
 	        { className: "main" },
 	        React.createElement(VideoPlayer, {
 	          ref: function ref(vp) {
-	            _this4.video = vp;
-	          } }),
+	            _this3.video = vp;
+	          },
+	          sendVideoSyncMessage: this.sendVideoSyncMessage.bind(this) }),
 	        React.createElement(Canvas, {
 	          ref: function ref(c) {
-	            _this4.canvas = c;
+	            _this3.canvas = c;
 	          },
 	          sendDrawMessage: this.sendDrawMessage.bind(this) })
 	      );
+	    }
+	  }, {
+	    key: "sendVideoSyncMessage",
+	    value: function sendVideoSyncMessage(state) {
+	      var videoMessage = JSON.stringify({
+	        messageType: "SYNC_VIDEO",
+	        message: "",
+	        videoState: {
+	          playing: state.playing,
+	          currentTime: state.currentTime
+	        }
+	      });
+	      this.ws.send(videoMessage);
 	    }
 	  }, {
 	    key: "sendDrawMessage",
@@ -4495,6 +4493,7 @@
 
 	      this.canvas.addEventListener('click', function () {
 	        _this2.playPause();
+	        _this2.props.sendVideoSyncMessage(_this2.getState());
 	      });
 
 	      this.video.addEventListener('timeupdate', function () {
@@ -4620,6 +4619,10 @@
 	  return VideoPlayer;
 	}(React.Component);
 
+	VideoPlayer.propTypes = {
+	  sendVideoSyncMessage: React.PropTypes.func
+	};
+
 	module.exports = VideoPlayer;
 
 /***/ },
@@ -4697,6 +4700,15 @@
 	      this.ctx.lineWidth = this.lineWidth;
 	      this.ctx.stroke();
 	      this.ctx.closePath();
+	    }
+	  }, {
+	    key: "drawLines",
+	    value: function drawLines(lines) {
+	      for (var i = 0; i < lines.length; i++) {
+	        var line = lines[i];
+	        this.drawLine(line.prevX, line.prevY, line.currX, line.currY);
+	        console.log(line);
+	      }
 	    }
 	  }, {
 	    key: "findxy",

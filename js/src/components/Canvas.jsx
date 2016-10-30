@@ -50,6 +50,14 @@ class Canvas extends React.Component {
     this.ctx.closePath();
   }
 
+  drawLines(lines) {
+    for (var i = 0; i < lines.length; i++) {
+      let line = lines[i];
+      this.drawLine(line.prevX, line.prevY, line.currX, line.currY);
+      console.log(line);
+    }
+  }
+
   findxy(res, e) {
     if (res == 'down') {
       this.prevX = this.currX;
@@ -98,7 +106,7 @@ class Canvas extends React.Component {
 }
 
 Canvas.propTypes = {
-    sendDrawMessage: React.PropTypes.func,
+  sendDrawMessage: React.PropTypes.func,
 };
 
 module.exports = Canvas;

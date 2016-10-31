@@ -1,4 +1,7 @@
 var path = require("path");
+var webpack = require("webpack");
+
+var MINIFY = false;
 
 module.exports = {
   context: "./js/",
@@ -7,6 +10,11 @@ module.exports = {
     path: "./js/",
     filename: "bundle.js",
   },
+  plugins: MINIFY ? [
+    new webpack.optimize.UglifyJsPlugin({
+      compress: { warnings: false }
+    })
+  ] : [],
   resolve: {
     root: [
       path.resolve("./js/"),

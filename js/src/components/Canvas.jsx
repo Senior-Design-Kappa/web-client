@@ -59,12 +59,14 @@ class Canvas extends React.Component {
   }
 
   findxy(res, e) {
+    let canvasRect = this.canvas.getBoundingClientRect();
+    let mouseX = e.clientX - canvasRect.left;
+    let mouseY = e.clientY - canvasRect.top;
     if (res == 'down') {
       this.prevX = this.currX;
       this.prevY = this.currY;
-      this.currX = e.clientX;
-      this.currY = e.clientY;
-
+      this.currX = mouseX;
+      this.currY = mouseY;
       this.flag = true;
       this.dot_flag = true;
       if (this.dot_flag) {
@@ -82,8 +84,8 @@ class Canvas extends React.Component {
       if (this.flag) {
         this.prevX = this.currX;
         this.prevY = this.currY;
-        this.currX = e.clientX;
-        this.currY = e.clientY;
+        this.currX = mouseX;
+        this.currY = mouseY;
         this.draw();
       }
     }

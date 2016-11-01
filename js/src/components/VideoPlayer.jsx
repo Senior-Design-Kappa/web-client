@@ -98,7 +98,7 @@ class VideoPlayer extends React.Component {
 
   render() {
     this.videoCanvasStyle = {
-      position: "relative",
+      position: "absolute",
       left: 0,
       top: 0,
       zIndex: 0

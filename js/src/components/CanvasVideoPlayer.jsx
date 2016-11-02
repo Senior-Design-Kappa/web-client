@@ -43,8 +43,11 @@ class CanvasVideoPlayer extends React.Component {
   }
 
   render() {
+    this.style = {
+      position: "relative",
+    };
     return (
-      <div className="main">
+      <div className="main" style={this.style}>
         <VideoPlayer 
           ref={(vp) => {this.video = vp;}} 
           sendVideoSyncMessage={this.sendVideoSyncMessage.bind(this)} />

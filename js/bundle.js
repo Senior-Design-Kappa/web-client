@@ -4401,9 +4401,12 @@
 	    value: function render() {
 	      var _this3 = this;
 
+	      this.style = {
+	        position: "relative"
+	      };
 	      return React.createElement(
 	        "div",
-	        { className: "main" },
+	        { className: "main", style: this.style },
 	        React.createElement(VideoPlayer, {
 	          ref: function ref(vp) {
 	            _this3.video = vp;
@@ -4584,7 +4587,7 @@
 	      var _this4 = this;
 
 	      this.videoCanvasStyle = {
-	        position: "absolute",
+	        position: "relative",
 	        left: 0,
 	        top: 0,
 	        zIndex: 0
@@ -4713,12 +4716,14 @@
 	  }, {
 	    key: "findxy",
 	    value: function findxy(res, e) {
+	      var canvasRect = this.canvas.getBoundingClientRect();
+	      var mouseX = e.clientX - canvasRect.left;
+	      var mouseY = e.clientY - canvasRect.top;
 	      if (res == 'down') {
 	        this.prevX = this.currX;
 	        this.prevY = this.currY;
-	        this.currX = e.clientX;
-	        this.currY = e.clientY;
-
+	        this.currX = mouseX;
+	        this.currY = mouseY;
 	        this.flag = true;
 	        this.dot_flag = true;
 	        if (this.dot_flag) {
@@ -4736,8 +4741,8 @@
 	        if (this.flag) {
 	          this.prevX = this.currX;
 	          this.prevY = this.currY;
-	          this.currX = e.clientX;
-	          this.currY = e.clientY;
+	          this.currX = mouseX;
+	          this.currY = mouseY;
 	          this.draw();
 	        }
 	      }

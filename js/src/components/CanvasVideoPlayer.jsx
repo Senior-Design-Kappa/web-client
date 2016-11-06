@@ -30,6 +30,8 @@ class CanvasVideoPlayer extends React.Component {
         case "SYNC_CANVAS":
           if (message.message == "DRAW_LINE") {
             this.canvas.drawLine(message.prevX, message.prevY, message.currX, message.currY);
+          } else if (message.message == "ERASE") {
+            this.canvas.eraseCircle(message.x, message.y, 20);
           } else if (message.message == "SYNC") {
             this.canvas.clear();
             this.canvas.drawLines(message.lines);
@@ -53,7 +55,8 @@ class CanvasVideoPlayer extends React.Component {
           sendVideoSyncMessage={this.sendVideoSyncMessage.bind(this)} />
         <Canvas 
           ref={(c) => {this.canvas = c;}} 
-          sendDrawMessage={this.sendDrawMessage.bind(this)} />
+          sendDrawMessage={this.sendDrawMessage.bind(this)} 
+          sendEraseMessage={this.sendEraseMessage.bind(this)} />
       </div>
     );
   }
@@ -80,6 +83,16 @@ class CanvasVideoPlayer extends React.Component {
       currY: currY,
     });
     this.ws.send(drawMessage);
+  }
+  
+  sendEraseMessage(x, y) {
+    let eraseMessage = JSON.stringify({
+      messageType: "SYNC_CANVAS",
+      message: "ERASE",
+      x: x,
+      y: y,
+    });
+    this.ws.send(eraseMessage);
   }
 }
 

@@ -1,4 +1,5 @@
 let React = require("react");
+let CanvasUI = require("./CanvasUI");
 
 class Canvas extends React.Component {
   constructor(props) {
@@ -40,6 +41,22 @@ class Canvas extends React.Component {
     this.props.sendDrawMessage(this.prevX, this.prevY, this.currX, this.currY);
   }
 
+  erase() {
+    this.eraseCircle(this.currX, this.currY, 20);
+    this.props.sendEraseMessage(this.currX, this.currY);
+  }
+
+  eraseCircle(x, y, r) {
+    this.ctx.save();
+    this.ctx.globalCompositeOperation = "destination-out";
+    this.ctx.beginPath();
+    this.ctx.arc(x, y, r, 0, 2 * Math.PI);
+    this.ctx.fill();
+    this.ctx.closePath();
+    this.ctx.restore();
+    this.ctx.globalCompositeOperation = "source-over";
+  }
+
   drawLine(prevX, prevY, currX, currY) {
     this.ctx.beginPath();
     this.ctx.moveTo(prevX, prevY);
@@ -54,7 +71,6 @@ class Canvas extends React.Component {
     for (var i = 0; i < lines.length; i++) {
       let line = lines[i];
       this.drawLine(line.prevX, line.prevY, line.currX, line.currY);
-      console.log(line);
     }
   }
 
@@ -86,21 +102,40 @@ class Canvas extends React.Component {
         this.prevY = this.currY;
         this.currX = mouseX;
         this.currY = mouseY;
-        this.draw();
+        if (this.ui.state.mode == this.ui.DRAW_LINE) {
+          console.log("draw");
+          this.draw();
+        } else if (this.ui.state.mode == this.ui.ERASE) {
+          console.log("erase");
+          this.erase();
+        }
       }
     }
   }
 
   render() {
-    this.style = {
+    let canvasStyle = {
       position: "absolute",
       left: 0,
       top: 0,
       zIndex: 1
     };
+    let uiStyle = {
+      position: "absolute",
+      left: 800,
+      top: 0,
+      zIndex: 2,
+      border: "1px solid black",
+    };
     return (
       <div className="whiteboard">
-        <canvas style={this.style} ref={(c) => {this.canvas = c; this.ctx = this.canvas.getContext('2d');}}
+        <div style={uiStyle}>
+          <CanvasUI 
+            ref={(c) => {this.ui = c;}} />
+        </div>
+        <canvas 
+          style={canvasStyle} 
+          ref={(c) => {this.canvas = c; this.ctx = this.canvas.getContext('2d');}}
           id="whiteboardCanvas" width="800" height="550" />
       </div>
     );
@@ -109,6 +144,7 @@ class Canvas extends React.Component {
 
 Canvas.propTypes = {
   sendDrawMessage: React.PropTypes.func,
+  sendEraseMessage: React.PropTypes.func,
 };
 
 module.exports = Canvas;

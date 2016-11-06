@@ -67,6 +67,17 @@ class Canvas extends React.Component {
     this.ctx.closePath();
   }
 
+  processActions(actions) {
+    for (var i = 0; i < actions.length; i++) {
+      let action = actions[i];
+      if (action.t === "DRAW_LINE") {
+        this.drawLine(action.prevX, action.prevY, action.currX, action.currY);
+      } else if (action.t === "ERASE") {
+        this.eraseCircle(action.x, action.y, 20);
+      }
+    }
+  }
+
   drawLines(lines) {
     for (var i = 0; i < lines.length; i++) {
       let line = lines[i];

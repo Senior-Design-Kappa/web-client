@@ -23,7 +23,7 @@ class CanvasVideoPlayer extends React.Component {
         case "INIT":
           this.clientID = message.hash;
           this.video.setState(message.videoState);
-          this.canvas.drawLines(message.lines);
+          this.canvas.processActions(message.actions);
         case "SYNC_VIDEO":
           this.received = true;
           this.video.setState(message.videoState);

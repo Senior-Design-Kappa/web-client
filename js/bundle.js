@@ -4377,7 +4377,7 @@
 	          case "INIT":
 	            _this2.clientID = message.hash;
 	            _this2.video.setState(message.videoState);
-	            _this2.canvas.drawLines(message.lines);
+	            _this2.canvas.processActions(message.actions);
 	          case "SYNC_VIDEO":
 	            _this2.received = true;
 	            _this2.video.setState(message.videoState);
@@ -4736,6 +4736,18 @@
 	      this.ctx.lineWidth = this.lineWidth;
 	      this.ctx.stroke();
 	      this.ctx.closePath();
+	    }
+	  }, {
+	    key: "processActions",
+	    value: function processActions(actions) {
+	      for (var i = 0; i < actions.length; i++) {
+	        var action = actions[i];
+	        if (action.t === "DRAW_LINE") {
+	          this.drawLine(action.prevX, action.prevY, action.currX, action.currY);
+	        } else if (action.t === "ERASE") {
+	          this.eraseCircle(action.x, action.y, 20);
+	        }
+	      }
 	    }
 	  }, {
 	    key: "drawLines",

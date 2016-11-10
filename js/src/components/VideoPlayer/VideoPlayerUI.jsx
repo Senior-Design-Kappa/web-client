@@ -1,80 +1,43 @@
 let React = require("react");
+let Play = require("./Play");
+
 class VideoPlayerUI extends React.Component {
+
+
   constructor(props) {
     super(props);
-    this.state = {
-      currentTime: 0,
-      duration: 0,
-      isPlaying: false,
-    };
   }
 
   componentDidMount() {
-    this.playButton.innerHTML = "►";
-    this.updatePlayButton();
-    this.updateTime(this.state.currentTime, this.state.duration);
 
-    this.playButton.addEventListener('click', (e) => {
-      e.preventDefault();
-      this.props.playPause();
-      this.updatePlayButton();
-    });
   }
 
-  updatePlayButton() {
-    if (!this.state.isPlaying) {
-      this.playButton.innerHTML = "►";
-      this.playButton.classList.add("paused");
-      this.playButton.classList.remove("playing");
-    } else {
-      this.playButton.innerHTML = "▌▌";
-      this.playButton.classList.add("playing");
-      this.playButton.classList.remove("paused");
-    }
-  }
-
-  timeToString(sec) {
-    sec = Math.floor(sec);
-    let hours   = Math.floor(sec / 3600);
-    let minutes = Math.floor((sec - (hours * 3600)) / 60);
-    let seconds = sec - (hours * 3600) - (minutes * 60);
-    if (seconds < 10) {
-      seconds = "0"+seconds;
-    }
-    if (hours > 0) {
-      if (minutes < 10) {
-        minutes = "0"+minutes;
-      }
-      return hours+':'+minutes+':'+seconds;
-    } else {
-      return minutes+':'+seconds;
-    }
-  }
-
-  updateTime(currentTime, duration) {
-    this.playerTime.innerHTML = this.timeToString(currentTime) + "/" + this.timeToString(duration);
-  }
 
   render() {
     return (
       <div id="player-controls">
-        <div id="player-progress">
-          <div ref={(e) => {this.progressBar = e;}} id="player-progress-bar" />
-          <div ref={(e) => {this.playerTime = e;}} id="player-time" />
-        </div>
-        <div id="left-player-controls">
-          <div ref={(e) => {this.playButton = e;}} id="play-button" className="unselectable"/>
-          <div id="player-volume">
-            <button ref={(e) => {this.volumeButton = e;}} id="player-volume-button" />
-            <div ref={(e) => {this.volumeSlider = e;}} id="player-volume-slider" />
-          </div>
-        </div>
-        <div id="right-player-controls">
-          <button ref={(e) => {this.playerSettings = e;}} id="player-settings" />
-          <button ref={(e) => {this.fullScreen = e;}} id="full-screen" />
-        </div>
+        <Play
+          onClick={this.props.playPause}
+          {...this.props}
+          {...this.state}/>
       </div>
     );
   }
 }
+  //
+  // <div id="player-progress">
+  //   <div ref={(e) => {this.progressBar = e;}} id="player-progress-bar" />
+  //   <div ref={(e) => {this.playerTime = e;}} id="player-time" />
+  // </div>
+  // <div id="left-player-controls">
+  //   <div ref={(e) => {this.playButton = e;}} id="play-button" className="unselectable"/>
+  //   <div id="player-volume">
+  //     <button ref={(e) => {this.volumeButton = e;}} id="player-volume-button" />
+  //     <div ref={(e) => {this.volumeSlider = e;}} id="player-volume-slider" />
+  //   </div>
+  // </div>
+  // <div id="right-player-controls">
+  //   <button ref={(e) => {this.playerSettings = e;}} id="player-settings" />
+  //   <button ref={(e) => {this.fullScreen = e;}} id="full-screen" />
+  // </div>
 module.exports = VideoPlayerUI;

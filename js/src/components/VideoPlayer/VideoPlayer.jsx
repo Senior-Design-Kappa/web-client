@@ -1,5 +1,33 @@
 let React = require("react");
 let VideoPlayerUI = require("./VideoPlayerUI");
+const EVENTS = [
+    'canplay',
+    'canplaythrough',
+    'durationchange',
+    'emptied',
+    'ended',
+    'error',
+    'loadeddata',
+    'loadedmetadata',
+    'loadstart',
+    'pause',
+    'play',
+    'playing',
+    'progress',
+    'ratechange',
+    'seeked',
+    'seeking',
+    'stalled',
+    'suspend',
+    'timeupdate',
+    'volumechange',
+    'waiting'
+];
+
+const FIRE_EVENTS = [
+  'vp-play',
+  'vp-pause',
+]
 
 class VideoPlayer extends React.Component {
 
@@ -7,39 +35,32 @@ class VideoPlayer extends React.Component {
     super(props);
     this.video = {};
     this.audio = {};
+    this.state = {
+      networkState: 0,
+      isPlaying: false,
+      muted: false,
+      volume: 50,
+    };
+    window.x = this; // DEBUGGING
   }
 
   componentDidMount() {
-    this.playing = false;
-    this.video.style.display = "none";
-    this.video.load();
-    this.audio.load();
 
-    this.uiUpdateInterval = setInterval(this.updateVideoPlayerUI.bind(this), 500);
-
-    this.video.addEventListener('canplay', () => {
-      this.updateVideoPlayerUI();
-      this.drawFrame();
-    });
-    if (this.video.readyState >= 2) {
-  		self.drawFrame();
-  	}
-
-    this.videoPlayer.addEventListener('vp-play', () => {
-      this.props.sendVideoSyncMessage(this.getState());
+    FIRE_EVENTS.forEach((event) => {
+      this.videoPlayer.addEventListener(event, (e) => {
+        this.props.sendVideoSyncMessage(this.getSyncState());
+      });
     });
 
-    this.videoPlayer.addEventListener('vp-pause', () => {
-      this.props.sendVideoSyncMessage(this.getState());
-    });
-
-    this.video.addEventListener('timeupdate', () => {
-  		this.drawFrame();
-  	});
+    EVENTS.forEach((event) => {
+      this.video.addEventListener(event, (e) => {
+        this.updateState();
+        this.drawFrame();
+      });
+    })
   }
 
   componentWillUnmount() {
-    clearInterval(this.uiUpdateInterval);
   }
 
   drawFrame() {
@@ -47,91 +68,86 @@ class VideoPlayer extends React.Component {
   }
 
   play() {
-    this.lastTime = Date.now();
-    this.playing = true;
-    this.loop();
-    this.audio.currentTime = this.video.currentTime;
-		this.audio.play();
+    this.video.play();
     this.videoPlayer.dispatchEvent(new Event("vp-play"));
+    this.updateCanvas = setInterval(this.drawFrame.bind(this), 100/6);
   }
 
   pause() {
-    this.playing = false;
-    this.audio.pause();
+    this.video.pause();
     this.videoPlayer.dispatchEvent(new Event("vp-pause"));
+    clearInterval(this.updateCanvas);
   }
 
   playPause() {
-    console.log("i'm being called");
-    if (this.playing) {
+    if (this.state.isPlaying) {
       this.pause();
     } else {
       this.play();
     }
   }
 
-  updateVideoPlayerUI() {
-    // this.videoPlayerUI.updateTime(this.video.currentTime, this.video.duration);
-    this.videoPlayerUI.setState({
-      currentTime: this.video.currentTime,
-      duration: this.video.duration,
-      isPlaying: this.playing,
-    });
-  }
-
-  getState() {
+  getSyncState() {
     return {
-      currentTime: this.video.currentTime,
-      playing: this.playing,
+      currentTime: this.state.currentTime,
+      playing: this.state.isPlaying,
     };
   }
 
-  setState(newState) {
+  syncState(newState) {
     this.video.currentTime = newState.currentTime;
-    if (newState.playing) {
+    if (newState.isPlaying) {
       this.play();
     } else {
       this.pause();
     }
   }
 
-  loop() {
-    let time = Date.now();
-    let elapsed = (time - this.lastTime) / 1000;
+  updateState() {
+    this.state = {
+      duration: this.video.duration,
+      currentTime: this.video.currentTime,
+      isPlaying: !this.video.paused,
+      muted: this.video.muted,
+      volume: this.video.volume,
+      buffered: this.video.buffered,
+    };
+    this.videoPlayerUI.setState(this.state);
+  }
 
-  	if(elapsed >= (1 / 60)) {
-  		this.video.currentTime = this.video.currentTime + elapsed;
-  		this.lastTime = time;
-  		// Resync audio and video if they drift more than 300ms apart
-  		if(Math.abs(this.audio.currentTime - this.video.currentTime) > 0.3){
-  			this.audio.currentTime = this.video.currentTime;
-  		}
-  	}
-    if (this.video.currentTime >= this.video.duration) {
-  		this.playing = false;
-  		this.video.currentTime = 0;
-  	}
-    if (this.playing) {
-      this.animationFrame = requestAnimationFrame(() => {this.loop()});
-    } else {
-      cancelAnimationFrame(this.animationFrame);
-    }
+  renderPlayerUI() {
+    let uiProps = {
+      playPause: this.playPause.bind(this),
+      state: this.state,
+    };
+    return (
+      <VideoPlayerUI
+        ref={(e) => {this.videoPlayerUI = e;}}
+        {...uiProps} />
+    );
+  }
+
+  renderPlayerSources() {
+    return (
+      <video ref={(e) => {this.video = e;}} id="source-video" controls style={{display: "none"}}>
+        <source src="http://clips.vorwaerts-gmbh.de/VfE_html5.mp4" type="video/mp4"/>
+      </video>
+    );
+  }
+
+  renderPlayerCanvas() {
+    return (
+      <canvas ref={(e) => {this.canvas = e; this.ctx = this.canvas.getContext('2d');}}
+        id="video-canvas" width="800" height="600" />
+    );
   }
 
   render() {
     return (
-      <div ref={(e) => {this.videoPlayer = e;}} className="video-player">
-        <canvas ref={(e) => {this.canvas = e; this.ctx = this.canvas.getContext('2d');}}
-          id="video-canvas" width="800" height="600" />
-        <video ref={(e) => {this.video = e;}} id="source-video" controls>
-          <source src="http://clips.vorwaerts-gmbh.de/VfE_html5.mp4" type="video/mp4"/>
-        </video>
-        <audio ref={(e) => {this.audio = e;}} id="source-audio">
-          <source src="http://clips.vorwaerts-gmbh.de/VfE_html5.mp4" type="video/mp4"/>
-        </audio>
-        <VideoPlayerUI
-          ref={(e) => {this.videoPlayerUI = e;}}
-          playPause={this.playPause.bind(this)} />
+      <div ref={(e) => {this.videoPlayer = e;}} id="video-player">
+        {this.renderPlayerCanvas()}
+        {this.renderPlayerSources()}
+        {this.renderPlayerUI()}
       </div>
     );
   }

@@ -22,11 +22,11 @@ class CanvasVideoPlayer extends React.Component {
       switch (message.messageType) {
         case "INIT":
           this.clientID = message.hash;
-          this.video.setState(message.videoState);
+          this.video.syncState(message.videoState);
           this.canvas.processActions(message.actions);
         case "SYNC_VIDEO":
           this.received = true;
-          this.video.setState(message.videoState);
+          this.video.syncState(message.videoState);
         case "SYNC_CANVAS":
           if (message.message == "DRAW_LINE") {
             this.canvas.drawLine(message.prevX, message.prevY, message.currX, message.currY);

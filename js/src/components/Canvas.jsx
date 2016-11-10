@@ -114,10 +114,8 @@ class Canvas extends React.Component {
         this.currX = mouseX;
         this.currY = mouseY;
         if (this.ui.state.mode == this.ui.DRAW_LINE) {
-          console.log("draw");
           this.draw();
         } else if (this.ui.state.mode == this.ui.ERASE) {
-          console.log("erase");
           this.erase();
         }
       }

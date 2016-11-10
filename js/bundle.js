@@ -4503,6 +4503,8 @@
 	      this.video.load();
 	      this.audio.load();
 
+	      this.uiUpdateInterval = setInterval(this.updateVideoPlayerUI.bind(this), 500);
+
 	      this.video.addEventListener('canplay', function () {
 	        _this2.updateVideoPlayerUI();
 	        _this2.drawFrame();
@@ -4524,6 +4526,11 @@
 	      });
 	    }
 	  }, {
+	    key: "componentWillUnmount",
+	    value: function componentWillUnmount() {
+	      clearInterval(this.uiUpdateInterval);
+	    }
+	  }, {
 	    key: "drawFrame",
 	    value: function drawFrame() {
 	      this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
@@ -4536,7 +4543,6 @@
 	      this.loop();
 	      this.audio.currentTime = this.video.currentTime;
 	      this.audio.play();
-
 	      this.videoPlayer.dispatchEvent(new Event("vp-play"));
 	    }
 	  }, {
@@ -4549,6 +4555,7 @@
 	  }, {
 	    key: "playPause",
 	    value: function playPause() {
+	      console.log("i'm being called");
 	      if (this.playing) {
 	        this.pause();
 	      } else {
@@ -4558,7 +4565,12 @@
 	  }, {
 	    key: "updateVideoPlayerUI",
 	    value: function updateVideoPlayerUI() {
-	      this.videoPlayerUI.updateTime(this.video.currentTime, this.video.duration);
+	      // this.videoPlayerUI.updateTime(this.video.currentTime, this.video.duration);
+	      this.videoPlayerUI.setState({
+	        currentTime: this.video.currentTime,
+	        duration: this.video.duration,
+	        isPlaying: this.playing
+	      });
 	    }
 	  }, {
 	    key: "getState",
@@ -4587,7 +4599,6 @@
 	      var elapsed = (time - this.lastTime) / 1000;
 
 	      if (elapsed >= 1 / 60) {
-	        this.updateVideoPlayerUI();
 	        this.video.currentTime = this.video.currentTime + elapsed;
 	        this.lastTime = time;
 	        // Resync audio and video if they drift more than 300ms apart
@@ -4639,8 +4650,7 @@
 	          ref: function ref(e) {
 	            _this4.videoPlayerUI = e;
 	          },
-	          playPause: this.playPause.bind(this),
-	          getState: this.getState.bind(this) })
+	          playPause: this.playPause.bind(this) })
 	      );
 	    }
 	  }]);
@@ -4680,7 +4690,8 @@
 
 	    _this.state = {
 	      currentTime: 0,
-	      duration: 0
+	      duration: 0,
+	      isPlaying: false
 	    };
 	    return _this;
 	  }
@@ -4691,15 +4702,27 @@
 	      var _this2 = this;
 
 	      this.playButton.innerHTML = "►";
+	      this.updatePlayButton();
+	      this.updateTime(this.state.currentTime, this.state.duration);
+
 	      this.playButton.addEventListener('click', function (e) {
 	        e.preventDefault();
 	        _this2.props.playPause();
-	        if (!_this2.props.getState().playing) {
-	          _this2.playButton.innerHTML = "►";
-	        } else {
-	          _this2.playButton.innerHTML = "▌▌";
-	        }
+	        _this2.updatePlayButton();
 	      });
+	    }
+	  }, {
+	    key: "updatePlayButton",
+	    value: function updatePlayButton() {
+	      if (!this.state.isPlaying) {
+	        this.playButton.innerHTML = "►";
+	        this.playButton.classList.add("paused");
+	        this.playButton.classList.remove("playing");
+	      } else {
+	        this.playButton.innerHTML = "▌▌";
+	        this.playButton.classList.add("playing");
+	        this.playButton.classList.remove("paused");
+	      }
 	    }
 	  }, {
 	    key: "timeToString",

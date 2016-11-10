@@ -15,6 +15,8 @@ class VideoPlayer extends React.Component {
     this.video.load();
     this.audio.load();
 
+    this.uiUpdateInterval = setInterval(this.updateVideoPlayerUI.bind(this), 500);
+
     this.video.addEventListener('canplay', () => {
       this.updateVideoPlayerUI();
       this.drawFrame();
@@ -34,7 +36,10 @@ class VideoPlayer extends React.Component {
     this.video.addEventListener('timeupdate', () => {
   		this.drawFrame();
   	});
+  }
 
+  componentWillUnmount() {
+    clearInterval(this.uiUpdateInterval);
   }
 
   drawFrame() {
@@ -47,7 +52,6 @@ class VideoPlayer extends React.Component {
     this.loop();
     this.audio.currentTime = this.video.currentTime;
 		this.audio.play();
-
     this.videoPlayer.dispatchEvent(new Event("vp-play"));
   }
 
@@ -58,6 +62,7 @@ class VideoPlayer extends React.Component {
   }
 
   playPause() {
+    console.log("i'm being called");
     if (this.playing) {
       this.pause();
     } else {
@@ -66,7 +71,12 @@ class VideoPlayer extends React.Component {
   }
 
   updateVideoPlayerUI() {
-    this.videoPlayerUI.updateTime(this.video.currentTime, this.video.duration);
+    // this.videoPlayerUI.updateTime(this.video.currentTime, this.video.duration);
+    this.videoPlayerUI.setState({
+      currentTime: this.video.currentTime,
+      duration: this.video.duration,
+      isPlaying: this.playing,
+    });
   }
 
   getState() {
@@ -90,7 +100,6 @@ class VideoPlayer extends React.Component {
     let elapsed = (time - this.lastTime) / 1000;
 
   	if(elapsed >= (1 / 60)) {
-      this.updateVideoPlayerUI();
   		this.video.currentTime = this.video.currentTime + elapsed;
   		this.lastTime = time;
   		// Resync audio and video if they drift more than 300ms apart
@@ -122,8 +131,7 @@ class VideoPlayer extends React.Component {
         </audio>
         <VideoPlayerUI
           ref={(e) => {this.videoPlayerUI = e;}}
-          playPause={this.playPause.bind(this)}
-          getState={this.getState.bind(this)} />
+          playPause={this.playPause.bind(this)} />
       </div>
     );
   }

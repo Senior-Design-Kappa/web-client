@@ -1,5 +1,5 @@
 let React = require("react");
-let VideoPlayer = require("./VideoPlayer")
+let VideoPlayer = require("./VideoPlayer/VideoPlayer")
 let Canvas = require("./Canvas")
 class CanvasVideoPlayer extends React.Component {
   constructor(props) {

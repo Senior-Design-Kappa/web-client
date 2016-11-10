@@ -44,15 +44,24 @@
   position: absolute;
   top: 0px;
   display: inline-block;
-  font-size: 2em;
   float: left;
   text-shadow: 0 0 0 #fff;
   color: rgba(255,255,255,0.8);
   width: 10%;
   padding-left: 5px;
   cursor: pointer;
-  font-variant: small-caps;
-  -webkit-transition: all 0.2s ease-out;
+  /*font-variant: small-caps;*/
+  /*-webkit-transition: all 0.2s ease-out;*/
+
+}
+
+.playing {
+  margin-top: 7px;
+  margin-left: 2px;
+  font-size: 1.3em;
+}
+.paused {
+  font-size: 2em;
 }
 
 #right-player-controls {
@@ -68,11 +77,6 @@
    -moz-user-select: -moz-none;
    -khtml-user-select: none;
    -webkit-user-select: none;
-
-   /*
-     Introduced in IE 10.
-     See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
-   */
    -ms-user-select: none;
    user-select: none;
 }

@@ -5,21 +5,32 @@ class VideoPlayerUI extends React.Component {
     this.state = {
       currentTime: 0,
       duration: 0,
+      isPlaying: false,
     };
   }
 
   componentDidMount() {
     this.playButton.innerHTML = "►";
+    this.updatePlayButton();
+    this.updateTime(this.state.currentTime, this.state.duration);
+
     this.playButton.addEventListener('click', (e) => {
       e.preventDefault();
       this.props.playPause();
-      if (!this.props.getState().playing) {
-        this.playButton.innerHTML = "►";
-      } else {
-        this.playButton.innerHTML = "▌▌";
-      }
+      this.updatePlayButton();
     });
+  }
 
+  updatePlayButton() {
+    if (!this.state.isPlaying) {
+      this.playButton.innerHTML = "►";
+      this.playButton.classList.add("paused");
+      this.playButton.classList.remove("playing");
+    } else {
+      this.playButton.innerHTML = "▌▌";
+      this.playButton.classList.add("playing");
+      this.playButton.classList.remove("paused");
+    }
   }
 
   timeToString(sec) {
@@ -38,7 +49,7 @@ class VideoPlayerUI extends React.Component {
     } else {
       return minutes+':'+seconds;
     }
-}
+  }
 
   updateTime(currentTime, duration) {
     this.playerTime.innerHTML = this.timeToString(currentTime) + "/" + this.timeToString(duration);

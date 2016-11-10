@@ -45,17 +45,14 @@ class CanvasVideoPlayer extends React.Component {
   }
 
   render() {
-    this.style = {
-      position: "relative",
-    };
     return (
-      <div className="main" style={this.style}>
-        <VideoPlayer 
-          ref={(vp) => {this.video = vp;}} 
+      <div className="main">
+        <VideoPlayer
+          ref={(vp) => {this.video = vp;}}
           sendVideoSyncMessage={this.sendVideoSyncMessage.bind(this)} />
-        <Canvas 
-          ref={(c) => {this.canvas = c;}} 
-          sendDrawMessage={this.sendDrawMessage.bind(this)} 
+        <Canvas
+          ref={(c) => {this.canvas = c;}}
+          sendDrawMessage={this.sendDrawMessage.bind(this)}
           sendEraseMessage={this.sendEraseMessage.bind(this)} />
       </div>
     );
@@ -84,7 +81,7 @@ class CanvasVideoPlayer extends React.Component {
     });
     this.ws.send(drawMessage);
   }
-  
+
   sendEraseMessage(x, y) {
     let eraseMessage = JSON.stringify({
       messageType: "SYNC_CANVAS",

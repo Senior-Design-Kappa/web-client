@@ -1,8 +1,12 @@
 let React = require("react");
+let VideoPlayerUI = require("./VideoPlayerUI");
+
 class VideoPlayer extends React.Component {
 
   constructor(props) {
     super(props);
+    this.video = {};
+    this.audio = {};
   }
 
   componentDidMount() {
@@ -12,14 +16,18 @@ class VideoPlayer extends React.Component {
     this.audio.load();
 
     this.video.addEventListener('canplay', () => {
+      this.updateVideoPlayerUI();
       this.drawFrame();
     });
     if (this.video.readyState >= 2) {
   		self.drawFrame();
   	}
 
-    this.canvas.addEventListener('click', () => {
-      this.playPause();
+    this.videoPlayer.addEventListener('vp-play', () => {
+      this.props.sendVideoSyncMessage(this.getState());
+    });
+
+    this.videoPlayer.addEventListener('vp-pause', () => {
       this.props.sendVideoSyncMessage(this.getState());
     });
 
@@ -57,10 +65,14 @@ class VideoPlayer extends React.Component {
     }
   }
 
+  updateVideoPlayerUI() {
+    this.videoPlayerUI.updateTime(this.video.currentTime, this.video.duration);
+  }
+
   getState() {
     return {
       currentTime: this.video.currentTime,
-      playing: this.playing
+      playing: this.playing,
     };
   }
 
@@ -74,10 +86,11 @@ class VideoPlayer extends React.Component {
   }
 
   loop() {
-    let time = Date.now()
+    let time = Date.now();
     let elapsed = (time - this.lastTime) / 1000;
 
   	if(elapsed >= (1 / 60)) {
+      this.updateVideoPlayerUI();
   		this.video.currentTime = this.video.currentTime + elapsed;
   		this.lastTime = time;
   		// Resync audio and video if they drift more than 300ms apart
@@ -97,22 +110,20 @@ class VideoPlayer extends React.Component {
   }
 
   render() {
-    this.videoCanvasStyle = {
-      position: "absolute",
-      left: 0,
-      top: 0,
-      zIndex: 0
-    };
     return (
-      <div ref={(vp) => {this.videoPlayer = vp;}} className="videoPlayer">
-        <canvas ref={(c) => {this.canvas = c; this.ctx = this.canvas.getContext('2d');}}
-          id="videoCanvas" width="800" height="600" style={this.videoCanvasStyle} />
-        <video ref={(v) => {this.video = v;}} id="sourceVideo" controls>
+      <div ref={(e) => {this.videoPlayer = e;}} className="video-player">
+        <canvas ref={(e) => {this.canvas = e; this.ctx = this.canvas.getContext('2d');}}
+          id="video-canvas" width="800" height="600" />
+        <video ref={(e) => {this.video = e;}} id="source-video" controls>
           <source src="http://clips.vorwaerts-gmbh.de/VfE_html5.mp4" type="video/mp4"/>
         </video>
-        <audio ref={(a) => {this.audio = a;}} id="sourceAudio">
+        <audio ref={(e) => {this.audio = e;}} id="source-audio">
           <source src="http://clips.vorwaerts-gmbh.de/VfE_html5.mp4" type="video/mp4"/>
         </audio>
+        <VideoPlayerUI
+          ref={(e) => {this.videoPlayerUI = e;}}
+          playPause={this.playPause.bind(this)}
+          getState={this.getState.bind(this)} />
       </div>
     );
   }
@@ -120,6 +131,6 @@ class VideoPlayer extends React.Component {
 
 VideoPlayer.propTypes = {
   sendVideoSyncMessage: React.PropTypes.func,
-}
+};
 
 module.exports = VideoPlayer;

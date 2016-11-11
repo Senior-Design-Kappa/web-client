@@ -1,3 +1,7 @@
+body {
+  line-height: 0;
+}
+
 .main {
   position: relative;
 }
@@ -35,9 +39,9 @@
   z-index: 10;
   height: 40px;
   width: 800px;
-  position: absolute;
+  position: relative;
   bottom: 0;
-  opacity: 0.0;
+  opacity: 1.0;
   -webkit-transition: all 0.2s ease-out;
 }
 
@@ -46,19 +50,14 @@
   -webkit-transition: all 0.2s ease-out;
 }
 
-#left-player-controls {
-  position: absolute;
-  left: 0px;
-}
-
 #play-button {
-  position: absolute;
+  position: relative;
   top: 0px;
   display: inline-block;
-  float: left;
   text-shadow: 0 0 0 #fff;
   color: rgba(255,255,255,0.8);
   width: 10%;
+  height: 100%;
   padding-left: 5px;
   cursor: pointer;
   /*font-variant: small-caps;*/
@@ -76,6 +75,7 @@
 
 #right-player-controls {
   position: absolute;
+  display: inline-block;
   right: 0px;
 }
 
@@ -90,6 +90,50 @@
    -ms-user-select: none;
    user-select: none;
 }
+
+#progress-bar-container {
+  display: inline-block;
+  position: relative;
+  height: 40px;
+  width: 40%;
+  /*padding: 16px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(0,0,0,0.7);
+  border-left: none;
+  box-shadow: inset 0 0 1px rgba(255,255,255,0.5);*/
+}
+
+/*#progress-bar {
+  width: 700px;
+  height: 7px;
+  position: relative;
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.1), inset 0 1px 1px rgba(0,0,0,1);
+  border-radius: 10px;
+}*/
+/*
+.progress span {
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-block;
+  border-radius: 10px;
+}*/
+
+/*#progress-bar-time {
+  z-index:10;
+  width 0;
+  background: -webkit-linear-gradient(top, rgba(106,204,226,1) 0%, rgba(29,163,208,1) 100%);
+  box-shadow: 0 0 7px rgba(106,204,226,0.5);
+}*/
+/*
+#progress-bar-buffer {
+  z-index: 5;
+  width: 0;
+  background: rgba(255,255,255,0.2);
+}*/
 
 /*
 #player-progress {

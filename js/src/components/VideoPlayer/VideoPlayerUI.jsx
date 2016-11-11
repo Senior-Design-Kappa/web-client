@@ -1,5 +1,6 @@
 let React = require("react");
 let Play = require("./Play");
+let ProgressBar = require("./ProgressBar");
 
 class VideoPlayerUI extends React.Component {
 
@@ -17,9 +18,12 @@ class VideoPlayerUI extends React.Component {
     return (
       <div id="player-controls">
         <Play
-          onClick={this.props.playPause}
           {...this.props}
           {...this.state}/>
+        <ProgressBar
+          {...this.props}
+          {...this.state}
+          />
       </div>
     );
   }

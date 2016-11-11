@@ -1,5 +1,18 @@
 let React = require("react");
 class Progress extends React.Component {
+
+  constructor(props) {
+    super(props);
+  }
+
+  shouldComponentUpdate(nextProps) {
+    return this.props.seek !== nextProps.seek ||
+          //  this.props.percentageBuffered !== nextProps.percentageBuffered ||
+           this.percentagePlayed !== nextProps.percentagePlayed ||
+           this.props.duration !== nextProps.duration;
+  }
+
+
   timeToString(sec) {
     sec = Math.floor(sec);
     let hours   = Math.floor(sec / 3600);
@@ -21,5 +34,17 @@ class Progress extends React.Component {
   updateTime(currentTime, duration) {
     this.playerTime.innerHTML = this.timeToString(currentTime) + "/" + this.timeToString(duration);
   }
+
+  render() {
+    return (
+      <div id="progress-bar-container">
+        <div id="progress-bar">
+          <span id="progress-bar-time" className="progress" />
+          <span id="progress-bar-buffer" className="progress" />
+        </div>
+      </div>
+    );
+  }
+
 }
 module.exports = Progress;

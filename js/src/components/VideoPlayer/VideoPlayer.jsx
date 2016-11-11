@@ -25,8 +25,7 @@ const EVENTS = [
 ];
 
 const FIRE_EVENTS = [
-  'vp-play',
-  'vp-pause',
+  'sync',
 ]
 
 class VideoPlayer extends React.Component {
@@ -46,12 +45,9 @@ class VideoPlayer extends React.Component {
 
   componentDidMount() {
 
-    FIRE_EVENTS.forEach((event) => {
-      this.videoPlayer.addEventListener(event, (e) => {
-        this.props.sendVideoSyncMessage(this.getSyncState());
-      });
-    });
-
+    this.videoPlayer.addEventListener('sync', (e) => {
+      this.props.sendVideoSyncMessage(this.getSyncState());
+    })
     EVENTS.forEach((event) => {
       this.video.addEventListener(event, (e) => {
         this.updateState();
@@ -67,43 +63,73 @@ class VideoPlayer extends React.Component {
     this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
   }
 
-  play() {
+  play(sync) {
     this.video.play();
-    this.videoPlayer.dispatchEvent(new Event("vp-play"));
     this.updateCanvas = setInterval(this.drawFrame.bind(this), 100/6);
+    if (!sync) {
+      this.videoPlayer.dispatchEvent(new Event('sync'));
+    }
   }
 
-  pause() {
+  pause(sync) {
     this.video.pause();
-    this.videoPlayer.dispatchEvent(new Event("vp-pause"));
     clearInterval(this.updateCanvas);
+    if (!sync) {
+      this.videoPlayer.dispatchEvent(new Event('sync'));
+    }
   }
 
   playPause() {
-    if (this.state.isPlaying) {
-      this.pause();
+    if (!this.video.paused) {
+      this.pause(false);
     } else {
-      this.play();
+      this.play(false);
     }
   }
 
-  getSyncState() {
+  seek(time, force) {
+    this.video.currentTime = time;
+    if (force) {
+      this.updateState();
+    }
+  }
+
+  setVolume(volume, force) {
+    this.video.volume = volume;
+    if (force) {
+      this.updateState();
+    }
+  }
+
+  mute() {
+    this.video.mute = true;
+  }
+
+  unmute() {
+    this.video.mute = false;
+  }
+
+  toggleMute() {
+    this.video.mute = !this.video.mute;
+  }
+
+  getSyncState() { // TODO: needs to be refactored
     return {
       currentTime: this.state.currentTime,
-      playing: this.state.isPlaying,
+      playing: !this.video.paused,
     };
   }
 
-  syncState(newState) {
+  syncState(newState) { // TODO: needs to be refactored
     this.video.currentTime = newState.currentTime;
-    if (newState.isPlaying) {
-      this.play();
+    if (newState.playing) {
+      this.play(true);
     } else {
-      this.pause();
+      this.pause(true);
     }
   }
 
-  updateState() {
+  updateState() { // TODO: needs to be refactored
     this.state = {
       duration: this.video.duration,
       currentTime: this.video.currentTime,
@@ -111,6 +137,7 @@ class VideoPlayer extends React.Component {
       muted: this.video.muted,
       volume: this.video.volume,
       buffered: this.video.buffered,
+      percentagePlayed: this.video.currentTime / this.video.duration * 100,
     };
     this.videoPlayerUI.setState(this.state);
   }
@@ -118,6 +145,11 @@ class VideoPlayer extends React.Component {
   renderPlayerUI() {
     let uiProps = {
       playPause: this.playPause.bind(this),
+      setVolume: this.setVolume.bind(this),
+      seek: this.seek.bind(this),
+      mute: this.mute.bind(this),
+      unmute: this.unmute.bind(this),
+      toggleMute: this.toggleMute.bind(this),
       state: this.state,
     };
     return (

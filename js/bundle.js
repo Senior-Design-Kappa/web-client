@@ -4875,8 +4875,8 @@
 	        React.createElement(
 	          "div",
 	          { id: "progress-bar" },
-	          React.createElement("span", { id: "progress-bar-time", className: "progress" }),
-	          React.createElement("span", { id: "progress-bar-buffer", className: "progress" })
+	          React.createElement("div", { id: "progress-bar-time", className: "progress-bar-fill" }),
+	          React.createElement("div", { id: "progress-bar-buffer", className: "progress-bar-fill" })
 	        )
 	      );
 	    }

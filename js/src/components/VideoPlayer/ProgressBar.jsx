@@ -39,8 +39,8 @@ class Progress extends React.Component {
     return (
       <div id="progress-bar-container">
         <div id="progress-bar">
-          <span id="progress-bar-time" className="progress" />
-          <span id="progress-bar-buffer" className="progress" />
+          <div id="progress-bar-time" className="progress-bar-fill" />
+          <div id="progress-bar-buffer" className="progress-bar-fill" />
         </div>
       </div>
     );

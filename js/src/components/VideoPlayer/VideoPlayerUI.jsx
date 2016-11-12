@@ -13,7 +13,7 @@ class VideoPlayerUI extends React.Component {
 
   render() {
     return (
-      <div id="player-controls">
+      <div className="player-controls">
         <Play
           {...this.props}
           {...this.state}/>

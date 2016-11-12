@@ -4485,6 +4485,8 @@
 
 	var FIRE_EVENTS = ['sync'];
 
+	var FRAME_RATE = 100 / 6;
+
 	var VideoPlayer = function (_React$Component) {
 	  _inherits(VideoPlayer, _React$Component);
 
@@ -4495,13 +4497,6 @@
 
 	    _this.video = {};
 	    _this.audio = {};
-	    _this.state = {
-	      networkState: 0,
-	      isPlaying: false,
-	      muted: false,
-	      volume: 50
-	    };
-	    window.x = _this; // DEBUGGING
 	    return _this;
 	  }
 
@@ -4532,7 +4527,7 @@
 	    key: "play",
 	    value: function play(sync) {
 	      this.video.play();
-	      this.updateCanvas = setInterval(this.drawFrame.bind(this), 100 / 6);
+	      this.updateCanvas = setInterval(this.drawFrame.bind(this), FRAME_RATE);
 	      if (!sync) {
 	        this.videoPlayer.dispatchEvent(new Event('sync'));
 	      }
@@ -4557,10 +4552,13 @@
 	    }
 	  }, {
 	    key: "seek",
-	    value: function seek(time, force) {
+	    value: function seek(time, force, sync) {
 	      this.video.currentTime = time;
 	      if (force) {
 	        this.updateState();
+	      }
+	      if (!sync) {
+	        this.videoPlayer.dispatchEvent(new Event('sync'));
 	      }
 	    }
 	  }, {
@@ -4591,7 +4589,7 @@
 	    value: function getSyncState() {
 	      // TODO: needs to be refactored
 	      return {
-	        currentTime: this.state.currentTime,
+	        currentTime: this.video.currentTime,
 	        playing: !this.video.paused
 	      };
 	    }
@@ -4651,7 +4649,7 @@
 	        { ref: function ref(e) {
 	            _this4.video = e;
 	          }, id: "source-video", controls: true, style: { display: "none" } },
-	        React.createElement("source", { src: "http://clips.vorwaerts-gmbh.de/VfE_html5.mp4", type: "video/mp4" })
+	        React.createElement("source", { src: "https://r13---sn-ab5l6nld.googlevideo.com/videoplayback?requiressl=yes&id=7c45b7b3fede2d87&itag=37&source=webdrive&ttl=transient&app=explorer&ip=165.123.179.30&ipbits=8&expire=1479001163&sparams=expire,id,ip,ipbits,ipbypass,itag,mm,mn,ms,mv,nh,pl,requiressl,source,ttl&signature=7DF18CF13ABD32988BABC2A90AA12CB503E548A6.81AC2568A589BB1BC4819BBCE82D2E8680A81C50&key=cms1&pl=16&cm2rm=sn-a8au-2iae7z&req_id=70df4960142ea3ee&redirect_counter=2&cms_redirect=yes&ipbypass=yes&mm=30&mn=sn-ab5l6nld&ms=nxu&mt=1478990661&mv=m&nh=IgpwcjAzLmxnYTA3KgkxMjcuMC4wLjE", type: "video/mp4" })
 	      );
 	    }
 	  }, {
@@ -4662,7 +4660,7 @@
 	      return React.createElement("canvas", { ref: function ref(e) {
 	          _this5.canvas = e;_this5.ctx = _this5.canvas.getContext('2d');
 	        },
-	        id: "video-canvas", width: "800", height: "600" });
+	        className: "video-canvas", width: "800", height: "600" });
 	    }
 	  }, {
 	    key: "render",
@@ -4673,7 +4671,7 @@
 	        "div",
 	        { ref: function ref(e) {
 	            _this6.videoPlayer = e;
-	          }, id: "video-player" },
+	          }, className: "video-player" },
 	        this.renderPlayerCanvas(),
 	        this.renderPlayerSources(),
 	        this.renderPlayerUI()
@@ -4727,7 +4725,7 @@
 	    value: function render() {
 	      return React.createElement(
 	        "div",
-	        { id: "player-controls" },
+	        { className: "player-controls" },
 	        React.createElement(Play, _extends({}, this.props, this.state)),
 	        React.createElement(ProgressBar, _extends({}, this.props, this.state))
 	      );
@@ -4736,23 +4734,6 @@
 
 	  return VideoPlayerUI;
 	}(React.Component);
-	//
-	// <div id="player-progress">
-	//   <div ref={(e) => {this.progressBar = e;}} id="player-progress-bar" />
-	//   <div ref={(e) => {this.playerTime = e;}} id="player-time" />
-	// </div>
-	// <div id="left-player-controls">
-	//   <div ref={(e) => {this.playButton = e;}} id="play-button" className="unselectable"/>
-	//   <div id="player-volume">
-	//     <button ref={(e) => {this.volumeButton = e;}} id="player-volume-button" />
-	//     <div ref={(e) => {this.volumeSlider = e;}} id="player-volume-slider" />
-	//   </div>
-	// </div>
-	// <div id="right-player-controls">
-	//   <button ref={(e) => {this.playerSettings = e;}} id="player-settings" />
-	//   <button ref={(e) => {this.fullScreen = e;}} id="full-screen" />
-	// </div>
-
 
 	module.exports = VideoPlayerUI;
 
@@ -4797,8 +4778,7 @@
 	          ref: function ref(e) {
 	            _this2.playButton = e;
 	          },
-	          id: "play-button",
-	          className: "unselectable " + (this.props.isPlaying ? "playing" : "paused"),
+	          className: "play-button unselectable " + (this.props.isPlaying ? "playing" : "paused"),
 	          onClick: this.props.playPause },
 	        this.props.isPlaying ? "▌▌" : "►"
 	      );
@@ -4867,16 +4847,30 @@
 	      this.playerTime.innerHTML = this.timeToString(currentTime) + "/" + this.timeToString(duration);
 	    }
 	  }, {
+	    key: "seek",
+	    value: function seek(evt) {
+	      var box = this.progressBar.getBoundingClientRect();
+	      var dist = evt.pageX - box.left;
+	      var newPercentage = dist / box.width;
+	      this.props.seek(newPercentage * this.props.duration, true);
+	    }
+	  }, {
 	    key: "render",
 	    value: function render() {
+	      var _this2 = this;
+
 	      return React.createElement(
 	        "div",
-	        { id: "progress-bar-container" },
+	        { className: "progress-bar-container" },
 	        React.createElement(
 	          "div",
-	          { id: "progress-bar" },
-	          React.createElement("div", { id: "progress-bar-time", className: "progress-bar-fill" }),
-	          React.createElement("div", { id: "progress-bar-buffer", className: "progress-bar-fill" })
+	          { className: "progress-bar",
+	            ref: function ref(e) {
+	              _this2.progressBar = e;
+	            },
+	            onClick: this.seek.bind(this) },
+	          React.createElement("div", { className: "progress-bar-time progress-bar-fill", style: { 'width': this.props.percentagePlayed + '%' } }),
+	          React.createElement("div", { className: "progress-bar-buffer progress-bar-fill" })
 	        )
 	      );
 	    }

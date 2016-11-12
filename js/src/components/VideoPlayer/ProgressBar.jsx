@@ -1,4 +1,5 @@
 let React = require("react");
+
 class Progress extends React.Component {
 
   constructor(props) {
@@ -11,7 +12,6 @@ class Progress extends React.Component {
            this.percentagePlayed !== nextProps.percentagePlayed ||
            this.props.duration !== nextProps.duration;
   }
-
 
   timeToString(sec) {
     sec = Math.floor(sec);
@@ -35,12 +35,21 @@ class Progress extends React.Component {
     this.playerTime.innerHTML = this.timeToString(currentTime) + "/" + this.timeToString(duration);
   }
 
+  seek(evt) {
+    let box = this.progressBar.getBoundingClientRect();
+    let dist = evt.pageX - box.left;
+    let newPercentage = dist / box.width;
+    this.props.seek(newPercentage * this.props.duration, true, );
+  }
+
   render() {
     return (
-      <div id="progress-bar-container">
-        <div id="progress-bar">
-          <div id="progress-bar-time" className="progress-bar-fill" />
-          <div id="progress-bar-buffer" className="progress-bar-fill" />
+      <div className="progress-bar-container">
+        <div className="progress-bar"
+          ref={(e) => {this.progressBar = e;}}
+          onClick={this.seek.bind(this)}>
+          <div className="progress-bar-time progress-bar-fill" style={{'width': (this.props.percentagePlayed + '%')}}/>
+          <div className="progress-bar-buffer progress-bar-fill" />
         </div>
       </div>
     );

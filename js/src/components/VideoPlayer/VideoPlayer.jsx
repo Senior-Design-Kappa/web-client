@@ -28,19 +28,14 @@ const FIRE_EVENTS = [
   'sync',
 ]
 
+const FRAME_RATE = 100 / 6;
+
 class VideoPlayer extends React.Component {
 
   constructor(props) {
     super(props);
     this.video = {};
     this.audio = {};
-    this.state = {
-      networkState: 0,
-      isPlaying: false,
-      muted: false,
-      volume: 50,
-    };
-    window.x = this; // DEBUGGING
   }
 
   componentDidMount() {
@@ -65,7 +60,7 @@ class VideoPlayer extends React.Component {
 
   play(sync) {
     this.video.play();
-    this.updateCanvas = setInterval(this.drawFrame.bind(this), 100/6);
+    this.updateCanvas = setInterval(this.drawFrame.bind(this), FRAME_RATE);
     if (!sync) {
       this.videoPlayer.dispatchEvent(new Event('sync'));
     }
@@ -87,10 +82,13 @@ class VideoPlayer extends React.Component {
     }
   }
 
-  seek(time, force) {
+  seek(time, force, sync) {
     this.video.currentTime = time;
     if (force) {
       this.updateState();
+    }
+    if (!sync) {
+      this.videoPlayer.dispatchEvent(new Event('sync'));
     }
   }
 
@@ -115,7 +113,7 @@ class VideoPlayer extends React.Component {
 
   getSyncState() { // TODO: needs to be refactored
     return {
-      currentTime: this.state.currentTime,
+      currentTime: this.video.currentTime,
       playing: !this.video.paused,
     };
   }
@@ -155,14 +153,15 @@ class VideoPlayer extends React.Component {
     return (
       <VideoPlayerUI
         ref={(e) => {this.videoPlayerUI = e;}}
-        {...uiProps} />
+        {...uiProps}
+        />
     );
   }
 
   renderPlayerSources() {
     return (
       <video ref={(e) => {this.video = e;}} id="source-video" controls style={{display: "none"}}>
-        <source src="http://clips.vorwaerts-gmbh.de/VfE_html5.mp4" type="video/mp4"/>
+        <source src="https://r13---sn-ab5l6nld.googlevideo.com/videoplayback?requiressl=yes&id=7c45b7b3fede2d87&itag=37&source=webdrive&ttl=transient&app=explorer&ip=165.123.179.30&ipbits=8&expire=1479001163&sparams=expire,id,ip,ipbits,ipbypass,itag,mm,mn,ms,mv,nh,pl,requiressl,source,ttl&signature=7DF18CF13ABD32988BABC2A90AA12CB503E548A6.81AC2568A589BB1BC4819BBCE82D2E8680A81C50&key=cms1&pl=16&cm2rm=sn-a8au-2iae7z&req_id=70df4960142ea3ee&redirect_counter=2&cms_redirect=yes&ipbypass=yes&mm=30&mn=sn-ab5l6nld&ms=nxu&mt=1478990661&mv=m&nh=IgpwcjAzLmxnYTA3KgkxMjcuMC4wLjE" type="video/mp4"/>
       </video>
     );
   }
@@ -170,13 +169,13 @@ class VideoPlayer extends React.Component {
   renderPlayerCanvas() {
     return (
       <canvas ref={(e) => {this.canvas = e; this.ctx = this.canvas.getContext('2d');}}
-        id="video-canvas" width="800" height="600" />
+        className="video-canvas" width="800" height="600" />
     );
   }
 
   render() {
     return (
-      <div ref={(e) => {this.videoPlayer = e;}} id="video-player">
+      <div ref={(e) => {this.videoPlayer = e;}} className="video-player">
         {this.renderPlayerCanvas()}
         {this.renderPlayerSources()}
         {this.renderPlayerUI()}

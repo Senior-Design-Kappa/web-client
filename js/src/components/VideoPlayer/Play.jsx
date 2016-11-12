@@ -12,8 +12,7 @@ class Play extends React.Component {
     return (
       <div
         ref={(e) => {this.playButton = e;}}
-        id="play-button"
-        className={"unselectable " + (this.props.isPlaying ? "playing" : "paused")}
+        className={"play-button unselectable " + (this.props.isPlaying ? "playing" : "paused")}
         onClick={this.props.playPause}>
         {this.props.isPlaying ? "▌▌" : "►"}
       </div>

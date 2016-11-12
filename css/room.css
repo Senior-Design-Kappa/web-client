@@ -41,7 +41,7 @@ body {
   width: 100%;
   position: relative;
   bottom: 0;
-  opacity: 1.0;
+  opacity: 0;
   -webkit-transition: all 0.2s ease-out;
 }
 

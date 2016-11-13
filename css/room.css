@@ -53,14 +53,14 @@ body {
 .play-button {
   position: relative;
   top: 0px;
-  bottom: 0px;
   vertical-align: top;
   display: inline-block;
   text-shadow: 0 0 0 #fff;
   color: rgba(255,255,255,0.8);
-  width: 5%;
+  width: 3%;
   height: 100%;
   padding-top: 20px;
+  margin-left: 3px;
   cursor: pointer;
   /*font-variant: small-caps;*/
 
@@ -73,12 +73,6 @@ body {
 .paused {
   padding-left: 5px;
   font-size: 2em;
-}
-
-#right-player-controls {
-  position: absolute;
-  display: inline-block;
-  right: 0px;
 }
 
 #player-volume, #player-time {
@@ -98,7 +92,10 @@ body {
   position: relative;
   height: 40px;
   width: 80%;
-  padding: 16px;
+  /*padding: 16px;*/
+  padding-top: 16px;
+  padding-left: 16px;
+  padding-right: 3px;
   border-left: none;
 }
 
@@ -111,15 +108,6 @@ body {
   box-shadow: 0 1px 0 rgba(255,255,255,0.1), inset 0 1px 1px rgba(0,0,0,1);
 }
 
-.progress span {
-  height: 100%;
-  position: relative;
-  top: 0;
-  left: 0;
-  display: block;
-  border-radius: 10px;
-  cursor: pointer;
-}
 
 .progress-bar-time {
   z-index:10;
@@ -136,4 +124,47 @@ body {
   position: relative;
   width: 0;
   background: rgba(255,255,255,0.2);
+}
+
+.volume-container {
+  display: inline-block;
+  position: relative;
+  height: 40px;
+  width: 15%;
+  border-left: none;
+}
+
+.volume-button {
+  position: relative;
+  top: 0px;
+  display: inline-block;
+  width: 30%;
+  height: 100%;
+  padding-top: 0px;
+  margin-left: 0px;
+  cursor: pointer;
+  filter: invert(100%);
+  content:url(http://www.free-icons-download.net/images/volume-button-icon-63760.png)
+}
+
+.volume {
+  width: 70%;
+  height: 7px;
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.1), inset 0 1px 1px rgba(0,0,0,1);
+}
+
+.volume-value {
+  z-index:10;
+  position: relative;
+  display: inline-block;
+  width: 0%;
+  height: 100%;
+  background: -webkit-linear-gradient(top, rgba(106,204,226,1) 0%, rgba(29,163,208,1) 100%);
+  box-shadow: 0 0 7px rgba(106,204,226,0.5);
+  margin-bottom: 17px;
+
 }

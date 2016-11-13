@@ -113,29 +113,43 @@ class VideoPlayer extends React.Component {
 
   mute() {
     this.video.mute = true;
+    this.updateState();
+
   }
 
   unmute() {
     this.video.mute = false;
+    this.updateState();
   }
 
-  toggleMute() {
-    this.video.mute = !this.video.mute;
+  toggleMute(force) {
+    this.video.muted = !this.video.muted;
+    if (force) {
+      this.updateState();
+    }
   }
 
   getSyncState() { // TODO: needs to be refactored
     return {
       currentTime: this.video.currentTime,
       playing: !this.video.paused,
+      volume: this.video.volume,
+      muted: this.video.muted,
     };
   }
 
   syncState(newState) { // TODO: needs to be refactored
     this.video.currentTime = newState.currentTime;
+    this.video.volume = newState.volume;
     if (newState.playing) {
       this.play(true);
     } else {
       this.pause(true);
+    }
+    if (newState.muted) {
+      this.mute();
+    } else {
+      this.unmute();
     }
   }
 
@@ -173,7 +187,7 @@ class VideoPlayer extends React.Component {
   renderPlayerSources() {
     return (
       <video ref={(e) => {this.video = e;}} id="source-video" controls style={{display: "none"}}>
-        <source src="https://r13---sn-ab5l6nld.googlevideo.com/videoplayback?requiressl=yes&id=7c45b7b3fede2d87&itag=37&source=webdrive&ttl=transient&app=explorer&ip=165.123.179.30&ipbits=8&expire=1479001163&sparams=expire,id,ip,ipbits,ipbypass,itag,mm,mn,ms,mv,nh,pl,requiressl,source,ttl&signature=7DF18CF13ABD32988BABC2A90AA12CB503E548A6.81AC2568A589BB1BC4819BBCE82D2E8680A81C50&key=cms1&pl=16&cm2rm=sn-a8au-2iae7z&req_id=70df4960142ea3ee&redirect_counter=2&cms_redirect=yes&ipbypass=yes&mm=30&mn=sn-ab5l6nld&ms=nxu&mt=1478990661&mv=m&nh=IgpwcjAzLmxnYTA3KgkxMjcuMC4wLjE" type="video/mp4"/>
+        <source src="https://r5---sn-a8au-2iae.googlevideo.com/videoplayback?requiressl=yes&id=8d4e35c609b91464&itag=22&source=webdrive&ttl=transient&app=explorer&ip=2607:f470:22:10:3c9f:5cba:79be:eaf6&ipbits=8&expire=1479014531&sparams=expire,id,ip,ipbits,itag,mm,mn,ms,mv,pl,requiressl,source,ttl&signature=384177741746F2102724E78866451628B648685F.5E6DEE4EEC68E31908BF82F6AB7B985188C07C70&key=cms1&pl=32&cms_redirect=yes&mm=31&mn=sn-a8au-2iae&ms=au&mt=1479001048&mv=m" type="video/mp4"/>
       </video>
     );
   }

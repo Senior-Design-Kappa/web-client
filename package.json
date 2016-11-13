@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "babel js/src -d js/build && npm run webpack",
-    "webpack": "webpack --config webpack.config.js"
+    "webpack": "webpack --config webpack.config.js",
+    "webpack-watch": "webpack --watch --progress"
   },
   "repository": {
     "type": "git",
@@ -20,10 +21,13 @@
   "homepage": "https://github.com/Senior-Design-Kappa/web-client#readme",
   "devDependencies": {
     "babel-cli": "^6.16.0",
+    "babel-core": "^6.18.2",
+    "babel-loader": "^6.2.7",
     "babel-preset-latest": "^6.16.0",
     "babel-preset-react": "^6.16.0",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
-    "webpack": "^1.13.2"
+    "webpack": "^1.13.2",
+    "webpack-dev-server": "^1.16.2"
   }
 }

@@ -40,7 +40,7 @@ class VideoPlayer extends React.Component {
   }
 
   componentDidMount() {
-
+    window.x = this;
     this.videoPlayer.addEventListener('sync', (e) => {
       this.props.sendVideoSyncMessage(this.getSyncState());
     })
@@ -104,22 +104,30 @@ class VideoPlayer extends React.Component {
     }
   }
 
-  setVolume(volume, force) {
+  setVolume(volume, force, sync) {
     this.video.volume = volume;
     if (force) {
       this.updateState();
     }
+    if (!sync) {
+      this.videoPlayer.dispatchEvent(new Event('sync'));
+    }
   }
 
-  mute() {
+  mute(sync) {
     this.video.mute = true;
     this.updateState();
-
+    if (!sync) {
+      this.videoPlayer.dispatchEvent(new Event('sync'));
+    }
   }
 
-  unmute() {
+  unmute(sync) {
     this.video.mute = false;
     this.updateState();
+    if (!sync) {
+      this.videoPlayer.dispatchEvent(new Event('sync'));
+    }
   }
 
   toggleMute(force) {
@@ -140,16 +148,17 @@ class VideoPlayer extends React.Component {
 
   syncState(newState) { // TODO: needs to be refactored
     this.video.currentTime = newState.currentTime;
-    this.video.volume = newState.volume;
+    this.setVolume(newState.volume, true, true);
+    console.log(newState);
     if (newState.playing) {
       this.play(true);
     } else {
       this.pause(true);
     }
     if (newState.muted) {
-      this.mute();
+      this.mute(true);
     } else {
-      this.unmute();
+      this.unmute(true);
     }
   }
 

@@ -123,29 +123,15 @@ class Canvas extends React.Component {
   }
 
   render() {
-    let canvasStyle = {
-      position: "absolute",
-      left: 0,
-      top: 0,
-      zIndex: 1
-    };
-    let uiStyle = {
-      position: "absolute",
-      left: 800,
-      top: 0,
-      zIndex: 2,
-      border: "1px solid black",
-    };
     return (
       <div className="whiteboard">
-        <div style={uiStyle}>
-          <CanvasUI 
+        <div id="canvas-ui">
+          <CanvasUI
             ref={(c) => {this.ui = c;}} />
         </div>
-        <canvas 
-          style={canvasStyle} 
+        <canvas
           ref={(c) => {this.canvas = c; this.ctx = this.canvas.getContext('2d');}}
-          id="whiteboardCanvas" width="800" height="550" />
+          id="whiteboard-canvas" width="800" height="600" />
       </div>
     );
   }

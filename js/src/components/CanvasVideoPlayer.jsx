@@ -1,5 +1,5 @@
 let React = require("react");
-let VideoPlayer = require("./VideoPlayer")
+let VideoPlayer = require("./VideoPlayer/VideoPlayer")
 let Canvas = require("./Canvas")
 class CanvasVideoPlayer extends React.Component {
   constructor(props) {
@@ -22,11 +22,11 @@ class CanvasVideoPlayer extends React.Component {
       switch (message.messageType) {
         case "INIT":
           this.clientID = message.hash;
-          this.video.setState(message.videoState);
+          this.video.syncState(message.videoState);
           this.canvas.processActions(message.actions);
         case "SYNC_VIDEO":
           this.received = true;
-          this.video.setState(message.videoState);
+          this.video.syncState(message.videoState);
         case "SYNC_CANVAS":
           if (message.message == "DRAW_LINE") {
             this.canvas.drawLine(message.prevX, message.prevY, message.currX, message.currY);
@@ -45,17 +45,14 @@ class CanvasVideoPlayer extends React.Component {
   }
 
   render() {
-    this.style = {
-      position: "relative",
-    };
     return (
-      <div className="main" style={this.style}>
-        <VideoPlayer 
-          ref={(vp) => {this.video = vp;}} 
+      <div className="main">
+        <VideoPlayer
+          ref={(vp) => {this.video = vp;}}
           sendVideoSyncMessage={this.sendVideoSyncMessage.bind(this)} />
-        <Canvas 
-          ref={(c) => {this.canvas = c;}} 
-          sendDrawMessage={this.sendDrawMessage.bind(this)} 
+        <Canvas
+          ref={(c) => {this.canvas = c;}}
+          sendDrawMessage={this.sendDrawMessage.bind(this)}
           sendEraseMessage={this.sendEraseMessage.bind(this)} />
       </div>
     );
@@ -84,7 +81,7 @@ class CanvasVideoPlayer extends React.Component {
     });
     this.ws.send(drawMessage);
   }
-  
+
   sendEraseMessage(x, y) {
     let eraseMessage = JSON.stringify({
       messageType: "SYNC_CANVAS",

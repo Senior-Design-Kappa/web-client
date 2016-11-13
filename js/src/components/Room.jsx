@@ -1,5 +1,4 @@
 let React = require("react");
-let Chat = require("./Chat");
 let CanvasVideoPlayer = require("./CanvasVideoPlayer");
 
 class Room extends React.Component {
@@ -7,7 +6,6 @@ class Room extends React.Component {
     return (
       <div className="main">
         <CanvasVideoPlayer websocketAddr={this.props.websocketAddr} roomId={this.props.roomId} />
-        <Chat />
       </div>
     );
   }

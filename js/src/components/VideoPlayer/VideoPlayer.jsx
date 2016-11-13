@@ -28,7 +28,7 @@ const FIRE_EVENTS = [
   'sync',
 ]
 
-const FRAME_RATE = 100 / 6;
+const FRAME_RATE = 5;
 
 class VideoPlayer extends React.Component {
 
@@ -36,6 +36,7 @@ class VideoPlayer extends React.Component {
     super(props);
     this.video = {};
     this.audio = {};
+    this.timeStamp = Date.now();
   }
 
   componentDidMount() {
@@ -58,9 +59,21 @@ class VideoPlayer extends React.Component {
     this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
   }
 
+  loop() {
+    let delta = Date.now() - this.timeStamp
+    if (delta > FRAME_RATE) {
+      this.drawFrame();
+      if (!this.video.paused) {
+        this.animationFrame = requestAnimationFrame(() => {this.loop()});
+      } else {
+        cancelAnimationFrame(this.animationFrame);
+      }
+    }
+  }
+
   play(sync) {
     this.video.play();
-    this.updateCanvas = setInterval(this.drawFrame.bind(this), FRAME_RATE);
+    this.loop();
     if (!sync) {
       this.videoPlayer.dispatchEvent(new Event('sync'));
     }
@@ -68,7 +81,6 @@ class VideoPlayer extends React.Component {
 
   pause(sync) {
     this.video.pause();
-    clearInterval(this.updateCanvas);
     if (!sync) {
       this.videoPlayer.dispatchEvent(new Event('sync'));
     }

@@ -4,6 +4,24 @@ class Progress extends React.Component {
 
   constructor(props) {
     super(props);
+    window.addEventListener('mouseup', (evt) => {
+      if (this.seeking) {
+        this.seeking = false;
+        let box = this.progressBar.getBoundingClientRect();
+        let dist = evt.pageX - box.left;
+        let newPercentage = Math.max(0.0, Math.min(1.0, dist / box.width));
+        this.props.seek(newPercentage * this.props.duration, true);
+      }
+    });
+
+    window.addEventListener('mousemove', (evt) => {
+      if (this.seeking) {
+        let box = this.progressBar.getBoundingClientRect();
+        let dist = evt.pageX - box.left;
+        let newPercentage = Math.max(0.0, Math.min(1.0, dist / box.width));
+        this.props.seek(newPercentage * this.props.duration, true);
+      }
+    });
   }
 
   shouldComponentUpdate(nextProps) {
@@ -36,10 +54,9 @@ class Progress extends React.Component {
   }
 
   seek(evt) {
-    let box = this.progressBar.getBoundingClientRect();
-    let dist = evt.pageX - box.left;
-    let newPercentage = dist / box.width;
-    this.props.seek(newPercentage * this.props.duration, true, );
+    evt.preventDefault();
+    evt.stopPropagation()
+    this.seeking = true;
   }
 
   render() {
@@ -47,7 +64,8 @@ class Progress extends React.Component {
       <div className="progress-bar-container">
         <div className="progress-bar"
           ref={(e) => {this.progressBar = e;}}
-          onClick={this.seek.bind(this)}>
+          onMouseDown={this.seek.bind(this)}
+          >
           <div className="progress-bar-time progress-bar-fill" style={{'width': (this.props.percentagePlayed + '%')}}/>
           <div className="progress-bar-buffer progress-bar-fill" />
         </div>

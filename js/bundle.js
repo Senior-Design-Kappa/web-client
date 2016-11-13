@@ -4485,7 +4485,7 @@
 
 	var FIRE_EVENTS = ['sync'];
 
-	var FRAME_RATE = 100 / 6;
+	var FRAME_RATE = 5;
 
 	var VideoPlayer = function (_React$Component) {
 	  _inherits(VideoPlayer, _React$Component);
@@ -4497,6 +4497,7 @@
 
 	    _this.video = {};
 	    _this.audio = {};
+	    _this.timeStamp = Date.now();
 	    return _this;
 	  }
 
@@ -4511,7 +4512,6 @@
 	      EVENTS.forEach(function (event) {
 	        _this2.video.addEventListener(event, function (e) {
 	          _this2.updateState();
-	          _this2.drawFrame();
 	        });
 	      });
 	    }
@@ -4524,10 +4524,28 @@
 	      this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
 	    }
 	  }, {
+	    key: "loop",
+	    value: function loop() {
+	      var _this3 = this;
+
+	      var delta = Date.now() - this.timeStamp;
+	      if (delta > FRAME_RATE) {
+	        this.drawFrame();
+	        if (!this.video.paused) {
+	          this.animationFrame = requestAnimationFrame(function () {
+	            _this3.loop();
+	          });
+	        } else {
+	          cancelAnimationFrame(this.animationFrame);
+	        }
+	      }
+	    }
+	  }, {
 	    key: "play",
 	    value: function play(sync) {
 	      this.video.play();
-	      this.updateCanvas = setInterval(this.drawFrame.bind(this), FRAME_RATE);
+	      this.loop();
+	      // this.updateCanvas = setInterval(this.drawFrame.bind(this), FRAME_RATE);
 	      if (!sync) {
 	        this.videoPlayer.dispatchEvent(new Event('sync'));
 	      }
@@ -4536,7 +4554,7 @@
 	    key: "pause",
 	    value: function pause(sync) {
 	      this.video.pause();
-	      clearInterval(this.updateCanvas);
+	      // clearInterval(this.updateCanvas);
 	      if (!sync) {
 	        this.videoPlayer.dispatchEvent(new Event('sync'));
 	      }
@@ -4554,6 +4572,7 @@
 	    key: "seek",
 	    value: function seek(time, force, sync) {
 	      this.video.currentTime = time;
+	      this.drawFrame();
 	      if (force) {
 	        this.updateState();
 	      }
@@ -4622,7 +4641,7 @@
 	  }, {
 	    key: "renderPlayerUI",
 	    value: function renderPlayerUI() {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      var uiProps = {
 	        playPause: this.playPause.bind(this),
@@ -4635,19 +4654,19 @@
 	      };
 	      return React.createElement(VideoPlayerUI, _extends({
 	        ref: function ref(e) {
-	          _this3.videoPlayerUI = e;
+	          _this4.videoPlayerUI = e;
 	        }
 	      }, uiProps));
 	    }
 	  }, {
 	    key: "renderPlayerSources",
 	    value: function renderPlayerSources() {
-	      var _this4 = this;
+	      var _this5 = this;
 
 	      return React.createElement(
 	        "video",
 	        { ref: function ref(e) {
-	            _this4.video = e;
+	            _this5.video = e;
 	          }, id: "source-video", controls: true, style: { display: "none" } },
 	        React.createElement("source", { src: "https://r13---sn-ab5l6nld.googlevideo.com/videoplayback?requiressl=yes&id=7c45b7b3fede2d87&itag=37&source=webdrive&ttl=transient&app=explorer&ip=165.123.179.30&ipbits=8&expire=1479001163&sparams=expire,id,ip,ipbits,ipbypass,itag,mm,mn,ms,mv,nh,pl,requiressl,source,ttl&signature=7DF18CF13ABD32988BABC2A90AA12CB503E548A6.81AC2568A589BB1BC4819BBCE82D2E8680A81C50&key=cms1&pl=16&cm2rm=sn-a8au-2iae7z&req_id=70df4960142ea3ee&redirect_counter=2&cms_redirect=yes&ipbypass=yes&mm=30&mn=sn-ab5l6nld&ms=nxu&mt=1478990661&mv=m&nh=IgpwcjAzLmxnYTA3KgkxMjcuMC4wLjE", type: "video/mp4" })
 	      );
@@ -4655,22 +4674,22 @@
 	  }, {
 	    key: "renderPlayerCanvas",
 	    value: function renderPlayerCanvas() {
-	      var _this5 = this;
+	      var _this6 = this;
 
 	      return React.createElement("canvas", { ref: function ref(e) {
-	          _this5.canvas = e;_this5.ctx = _this5.canvas.getContext('2d');
+	          _this6.canvas = e;_this6.ctx = _this6.canvas.getContext('2d');
 	        },
 	        className: "video-canvas", width: "800", height: "600" });
 	    }
 	  }, {
 	    key: "render",
 	    value: function render() {
-	      var _this6 = this;
+	      var _this7 = this;
 
 	      return React.createElement(
 	        "div",
 	        { ref: function ref(e) {
-	            _this6.videoPlayer = e;
+	            _this7.videoPlayer = e;
 	          }, className: "video-player" },
 	        this.renderPlayerCanvas(),
 	        this.renderPlayerSources(),
@@ -4768,6 +4787,12 @@
 	      return this.props.isPlaying !== nextProps.isPlaying;
 	    }
 	  }, {
+	    key: "playPause",
+	    value: function playPause(evt) {
+	      evt.preventDefault();
+	      this.props.playPause();
+	    }
+	  }, {
 	    key: "render",
 	    value: function render() {
 	      var _this2 = this;
@@ -4794,7 +4819,7 @@
 /* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -4812,18 +4837,38 @@
 	  function Progress(props) {
 	    _classCallCheck(this, Progress);
 
-	    return _possibleConstructorReturn(this, (Progress.__proto__ || Object.getPrototypeOf(Progress)).call(this, props));
+	    var _this = _possibleConstructorReturn(this, (Progress.__proto__ || Object.getPrototypeOf(Progress)).call(this, props));
+
+	    window.addEventListener('mouseup', function (evt) {
+	      if (_this.seeking) {
+	        _this.seeking = false;
+	        var box = _this.progressBar.getBoundingClientRect();
+	        var dist = evt.pageX - box.left;
+	        var newPercentage = Math.max(0.0, Math.min(1.0, dist / box.width));
+	        _this.props.seek(newPercentage * _this.props.duration, true);
+	      }
+	    });
+
+	    window.addEventListener('mousemove', function (evt) {
+	      if (_this.seeking) {
+	        var box = _this.progressBar.getBoundingClientRect();
+	        var dist = evt.pageX - box.left;
+	        var newPercentage = Math.max(0.0, Math.min(1.0, dist / box.width));
+	        _this.props.seek(newPercentage * _this.props.duration, true);
+	      }
+	    });
+	    return _this;
 	  }
 
 	  _createClass(Progress, [{
-	    key: "shouldComponentUpdate",
+	    key: 'shouldComponentUpdate',
 	    value: function shouldComponentUpdate(nextProps) {
 	      return this.props.seek !== nextProps.seek ||
 	      //  this.props.percentageBuffered !== nextProps.percentageBuffered ||
 	      this.percentagePlayed !== nextProps.percentagePlayed || this.props.duration !== nextProps.duration;
 	    }
 	  }, {
-	    key: "timeToString",
+	    key: 'timeToString',
 	    value: function timeToString(sec) {
 	      sec = Math.floor(sec);
 	      var hours = Math.floor(sec / 3600);
@@ -4842,35 +4887,35 @@
 	      }
 	    }
 	  }, {
-	    key: "updateTime",
+	    key: 'updateTime',
 	    value: function updateTime(currentTime, duration) {
 	      this.playerTime.innerHTML = this.timeToString(currentTime) + "/" + this.timeToString(duration);
 	    }
 	  }, {
-	    key: "seek",
+	    key: 'seek',
 	    value: function seek(evt) {
-	      var box = this.progressBar.getBoundingClientRect();
-	      var dist = evt.pageX - box.left;
-	      var newPercentage = dist / box.width;
-	      this.props.seek(newPercentage * this.props.duration, true);
+	      evt.preventDefault();
+	      evt.stopPropagation();
+	      this.seeking = true;
 	    }
 	  }, {
-	    key: "render",
+	    key: 'render',
 	    value: function render() {
 	      var _this2 = this;
 
 	      return React.createElement(
-	        "div",
-	        { className: "progress-bar-container" },
+	        'div',
+	        { className: 'progress-bar-container' },
 	        React.createElement(
-	          "div",
-	          { className: "progress-bar",
+	          'div',
+	          { className: 'progress-bar',
 	            ref: function ref(e) {
 	              _this2.progressBar = e;
 	            },
-	            onClick: this.seek.bind(this) },
-	          React.createElement("div", { className: "progress-bar-time progress-bar-fill", style: { 'width': this.props.percentagePlayed + '%' } }),
-	          React.createElement("div", { className: "progress-bar-buffer progress-bar-fill" })
+	            onMouseDown: this.seek.bind(this)
+	          },
+	          React.createElement('div', { className: 'progress-bar-time progress-bar-fill', style: { 'width': this.props.percentagePlayed + '%' } }),
+	          React.createElement('div', { className: 'progress-bar-buffer progress-bar-fill' })
 	        )
 	      );
 	    }

@@ -7,7 +7,7 @@ class Play extends React.Component {
   shouldComponentUpdate(nextProps) {
     return this.props.isPlaying !== nextProps.isPlaying;
   }
-
+  
   render() {
     return (
       <div

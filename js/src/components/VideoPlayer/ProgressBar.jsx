@@ -4,18 +4,17 @@ class Progress extends React.Component {
 
   constructor(props) {
     super(props);
-    window.addEventListener('mouseup', (evt) => {
+    this.props.moveEventHandlers.push((evt) => {
       if (this.seeking) {
-        this.seeking = false;
         let box = this.progressBar.getBoundingClientRect();
         let dist = evt.pageX - box.left;
         let newPercentage = Math.max(0.0, Math.min(1.0, dist / box.width));
         this.props.seek(newPercentage * this.props.duration, true);
       }
     });
-
-    window.addEventListener('mousemove', (evt) => {
+    this.props.upEventHandlers.push((evt) => {
       if (this.seeking) {
+        this.seeking = false;
         let box = this.progressBar.getBoundingClientRect();
         let dist = evt.pageX - box.left;
         let newPercentage = Math.max(0.0, Math.min(1.0, dist / box.width));

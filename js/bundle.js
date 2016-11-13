@@ -4666,7 +4666,7 @@
 	        { ref: function ref(e) {
 	            _this5.video = e;
 	          }, id: "source-video", controls: true, style: { display: "none" } },
-	        React.createElement("source", { src: "https://r13---sn-ab5l6nld.googlevideo.com/videoplayback?requiressl=yes&id=7c45b7b3fede2d87&itag=37&source=webdrive&ttl=transient&app=explorer&ip=165.123.179.30&ipbits=8&expire=1479001163&sparams=expire,id,ip,ipbits,ipbypass,itag,mm,mn,ms,mv,nh,pl,requiressl,source,ttl&signature=7DF18CF13ABD32988BABC2A90AA12CB503E548A6.81AC2568A589BB1BC4819BBCE82D2E8680A81C50&key=cms1&pl=16&cm2rm=sn-a8au-2iae7z&req_id=70df4960142ea3ee&redirect_counter=2&cms_redirect=yes&ipbypass=yes&mm=30&mn=sn-ab5l6nld&ms=nxu&mt=1478990661&mv=m&nh=IgpwcjAzLmxnYTA3KgkxMjcuMC4wLjE", type: "video/mp4" })
+	        React.createElement("source", { src: "https://r5---sn-a8au-2iae.googlevideo.com/videoplayback?requiressl=yes&id=8d4e35c609b91464&itag=22&source=webdrive&ttl=transient&app=explorer&ip=2607:f470:22:10:3c9f:5cba:79be:eaf6&ipbits=8&expire=1479014531&sparams=expire,id,ip,ipbits,itag,mm,mn,ms,mv,pl,requiressl,source,ttl&signature=384177741746F2102724E78866451628B648685F.5E6DEE4EEC68E31908BF82F6AB7B985188C07C70&key=cms1&pl=32&cms_redirect=yes&mm=31&mn=sn-a8au-2iae&ms=au&mt=1479001048&mv=m", type: "video/mp4" })
 	      );
 	    }
 	  }, {
@@ -4731,7 +4731,25 @@
 	  function VideoPlayerUI(props) {
 	    _classCallCheck(this, VideoPlayerUI);
 
-	    return _possibleConstructorReturn(this, (VideoPlayerUI.__proto__ || Object.getPrototypeOf(VideoPlayerUI)).call(this, props));
+	    var _this = _possibleConstructorReturn(this, (VideoPlayerUI.__proto__ || Object.getPrototypeOf(VideoPlayerUI)).call(this, props));
+
+	    _this.eventHandlers = {
+	      moveEventHandlers: [],
+	      upEventHandlers: []
+	    };
+	    window.addEventListener('mouseup', function (evt) {
+	      _this.eventHandlers.upEventHandlers.forEach(function (f) {
+	        f(evt);
+	      });
+	    });
+
+	    window.addEventListener('mousemove', function (evt) {
+	      _this.eventHandlers.moveEventHandlers.forEach(function (f) {
+	        f(evt);
+	      });
+	    });
+
+	    return _this;
 	  }
 
 	  _createClass(VideoPlayerUI, [{
@@ -4744,7 +4762,7 @@
 	        "div",
 	        { className: "player-controls" },
 	        React.createElement(Play, _extends({}, this.props, this.state)),
-	        React.createElement(ProgressBar, _extends({}, this.props, this.state))
+	        React.createElement(ProgressBar, _extends({}, this.props, this.state, this.eventHandlers))
 	      );
 	    }
 	  }]);
@@ -4811,7 +4829,7 @@
 /* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -4831,18 +4849,17 @@
 
 	    var _this = _possibleConstructorReturn(this, (Progress.__proto__ || Object.getPrototypeOf(Progress)).call(this, props));
 
-	    window.addEventListener('mouseup', function (evt) {
+	    _this.props.moveEventHandlers.push(function (evt) {
 	      if (_this.seeking) {
-	        _this.seeking = false;
 	        var box = _this.progressBar.getBoundingClientRect();
 	        var dist = evt.pageX - box.left;
 	        var newPercentage = Math.max(0.0, Math.min(1.0, dist / box.width));
 	        _this.props.seek(newPercentage * _this.props.duration, true);
 	      }
 	    });
-
-	    window.addEventListener('mousemove', function (evt) {
+	    _this.props.upEventHandlers.push(function (evt) {
 	      if (_this.seeking) {
+	        _this.seeking = false;
 	        var box = _this.progressBar.getBoundingClientRect();
 	        var dist = evt.pageX - box.left;
 	        var newPercentage = Math.max(0.0, Math.min(1.0, dist / box.width));
@@ -4853,14 +4870,14 @@
 	  }
 
 	  _createClass(Progress, [{
-	    key: 'shouldComponentUpdate',
+	    key: "shouldComponentUpdate",
 	    value: function shouldComponentUpdate(nextProps) {
 	      return this.props.seek !== nextProps.seek ||
 	      //  this.props.percentageBuffered !== nextProps.percentageBuffered ||
 	      this.percentagePlayed !== nextProps.percentagePlayed || this.props.duration !== nextProps.duration;
 	    }
 	  }, {
-	    key: 'timeToString',
+	    key: "timeToString",
 	    value: function timeToString(sec) {
 	      sec = Math.floor(sec);
 	      var hours = Math.floor(sec / 3600);
@@ -4879,35 +4896,34 @@
 	      }
 	    }
 	  }, {
-	    key: 'updateTime',
+	    key: "updateTime",
 	    value: function updateTime(currentTime, duration) {
 	      this.playerTime.innerHTML = this.timeToString(currentTime) + "/" + this.timeToString(duration);
 	    }
 	  }, {
-	    key: 'seek',
+	    key: "seek",
 	    value: function seek(evt) {
 	      evt.preventDefault();
 	      evt.stopPropagation();
 	      this.seeking = true;
 	    }
 	  }, {
-	    key: 'render',
+	    key: "render",
 	    value: function render() {
 	      var _this2 = this;
 
 	      return React.createElement(
-	        'div',
-	        { className: 'progress-bar-container' },
+	        "div",
+	        { className: "progress-bar-container" },
 	        React.createElement(
-	          'div',
-	          { className: 'progress-bar',
+	          "div",
+	          { className: "progress-bar",
 	            ref: function ref(e) {
 	              _this2.progressBar = e;
 	            },
 	            onMouseDown: this.seek.bind(this)
 	          },
-	          React.createElement('div', { className: 'progress-bar-time progress-bar-fill', style: { 'width': this.props.percentagePlayed + '%' } }),
-	          React.createElement('div', { className: 'progress-bar-buffer progress-bar-fill' })
+	          React.createElement("div", { className: "progress-bar-time progress-bar-fill", style: { 'width': this.props.percentagePlayed + '%' } })
 	        )
 	      );
 	    }

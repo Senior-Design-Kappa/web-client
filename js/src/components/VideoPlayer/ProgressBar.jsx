@@ -67,7 +67,6 @@ class Progress extends React.Component {
           onMouseDown={this.seek.bind(this)}
           >
           <div className="progress-bar-time progress-bar-fill" style={{'width': (this.props.percentagePlayed + '%')}}/>
-          <div className="progress-bar-buffer progress-bar-fill" />
         </div>
       </div>
     );

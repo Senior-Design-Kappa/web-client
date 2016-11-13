@@ -4512,6 +4512,7 @@
 	      EVENTS.forEach(function (event) {
 	        _this2.video.addEventListener(event, function (e) {
 	          _this2.updateState();
+	          _this2.drawFrame();
 	        });
 	      });
 	    }
@@ -4545,7 +4546,6 @@
 	    value: function play(sync) {
 	      this.video.play();
 	      this.loop();
-	      // this.updateCanvas = setInterval(this.drawFrame.bind(this), FRAME_RATE);
 	      if (!sync) {
 	        this.videoPlayer.dispatchEvent(new Event('sync'));
 	      }
@@ -4554,7 +4554,6 @@
 	    key: "pause",
 	    value: function pause(sync) {
 	      this.video.pause();
-	      // clearInterval(this.updateCanvas);
 	      if (!sync) {
 	        this.videoPlayer.dispatchEvent(new Event('sync'));
 	      }
@@ -4572,7 +4571,6 @@
 	    key: "seek",
 	    value: function seek(time, force, sync) {
 	      this.video.currentTime = time;
-	      this.drawFrame();
 	      if (force) {
 	        this.updateState();
 	      }
@@ -4785,12 +4783,6 @@
 	    key: "shouldComponentUpdate",
 	    value: function shouldComponentUpdate(nextProps) {
 	      return this.props.isPlaying !== nextProps.isPlaying;
-	    }
-	  }, {
-	    key: "playPause",
-	    value: function playPause(evt) {
-	      evt.preventDefault();
-	      this.props.playPause();
 	    }
 	  }, {
 	    key: "render",

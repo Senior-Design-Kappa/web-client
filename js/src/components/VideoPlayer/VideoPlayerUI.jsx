@@ -21,6 +21,10 @@ class VideoPlayerUI extends React.Component {
           {...this.props}
           {...this.state}
           />
+        <Volume
+          {...this.props}
+          {...this.state}
+          />
       </div>
     );
   }

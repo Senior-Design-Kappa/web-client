@@ -58,9 +58,10 @@ body {
   display: inline-block;
   text-shadow: 0 0 0 #fff;
   color: rgba(255,255,255,0.8);
-  width: 5%;
+  width: 3%;
   height: 100%;
   padding-top: 20px;
+  margin-left: 3px;
   cursor: pointer;
   /*font-variant: small-caps;*/
 

@@ -4,10 +4,22 @@ var webpack = require("webpack");
 var MINIFY = false;
 
 module.exports = {
-  context: "./js/",
-  entry: "./build/app.js",
+  context: "./",
+  entry: path.resolve("./js/src/app.js"),
+  module: {
+    loaders: [
+      {
+        test: /\.jsx?$/,
+        exclude: /node_modules/,
+        loader: "babel",
+        query: {
+          presets: ["latest", "react"],
+        },
+      },
+    ],
+  },
   output: {
-    path: "./js/",
+    path: "./js/webpack/",
     filename: "bundle.js",
   },
   plugins: MINIFY ? [
@@ -19,5 +31,9 @@ module.exports = {
     root: [
       path.resolve("./js/"),
     ],
+    extensions: ["", ".js", ".jsx"],
   },
+  resolveLoader: {
+    root: path.join(__dirname, "node_modules"),
+  }
 };

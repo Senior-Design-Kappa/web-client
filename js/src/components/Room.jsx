@@ -1,5 +1,5 @@
 let React = require("react");
-let Chat = require("./Chat");
+let Chat = require("./chat");
 let CanvasVideoPlayer = require("./CanvasVideoPlayer");
 
 class Room extends React.Component {

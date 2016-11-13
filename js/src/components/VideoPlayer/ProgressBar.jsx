@@ -5,7 +5,7 @@ class Progress extends React.Component {
   constructor(props) {
     super(props);
     this.props.moveEventHandlers.push((evt) => {
-      if (this.seeking) {
+      if (this.changing) {
         let box = this.progressBar.getBoundingClientRect();
         let dist = evt.pageX - box.left;
         let newPercentage = Math.max(0.0, Math.min(1.0, dist / box.width));
@@ -13,8 +13,8 @@ class Progress extends React.Component {
       }
     });
     this.props.upEventHandlers.push((evt) => {
-      if (this.seeking) {
-        this.seeking = false;
+      if (this.changing) {
+        this.changing = false;
         let box = this.progressBar.getBoundingClientRect();
         let dist = evt.pageX - box.left;
         let newPercentage = Math.max(0.0, Math.min(1.0, dist / box.width));
@@ -52,10 +52,10 @@ class Progress extends React.Component {
     this.playerTime.innerHTML = this.timeToString(currentTime) + "/" + this.timeToString(duration);
   }
 
-  seek(evt) {
+  onChange(evt) {
     evt.preventDefault();
     evt.stopPropagation()
-    this.seeking = true;
+    this.changing = true;
   }
 
   render() {
@@ -63,7 +63,7 @@ class Progress extends React.Component {
       <div className="progress-bar-container">
         <div className="progress-bar"
           ref={(e) => {this.progressBar = e;}}
-          onMouseDown={this.seek.bind(this)}
+          onMouseDown={this.onChange.bind(this)}
           >
           <div className="progress-bar-time progress-bar-fill" style={{'width': (this.props.percentagePlayed + '%')}}/>
         </div>

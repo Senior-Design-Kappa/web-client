@@ -1,6 +1,7 @@
 let React = require("react");
 let Play = require("./Play");
 let ProgressBar = require("./ProgressBar");
+let Volume = require("./Volume")
 
 class VideoPlayerUI extends React.Component {
 
@@ -39,7 +40,11 @@ class VideoPlayerUI extends React.Component {
           {...this.state}
           {...this.eventHandlers}
           />
-        
+        <Volume
+          {...this.props}
+          {...this.state}
+          {...this.eventHandlers}
+          />
       </div>
     );
   }

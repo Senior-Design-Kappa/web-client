@@ -113,29 +113,43 @@ class VideoPlayer extends React.Component {
 
   mute() {
     this.video.mute = true;
+    this.updateState();
+
   }
 
   unmute() {
     this.video.mute = false;
+    this.updateState();
   }
 
-  toggleMute() {
-    this.video.mute = !this.video.mute;
+  toggleMute(force) {
+    this.video.muted = !this.video.muted;
+    if (force) {
+      this.updateState();
+    }
   }
 
   getSyncState() { // TODO: needs to be refactored
     return {
       currentTime: this.video.currentTime,
       playing: !this.video.paused,
+      volume: this.video.volume,
+      muted: this.video.muted,
     };
   }
 
   syncState(newState) { // TODO: needs to be refactored
     this.video.currentTime = newState.currentTime;
+    this.video.volume = newState.volume;
     if (newState.playing) {
       this.play(true);
     } else {
       this.pause(true);
+    }
+    if (newState.muted) {
+      this.mute();
+    } else {
+      this.unmute();
     }
   }
 

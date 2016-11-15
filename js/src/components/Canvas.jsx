@@ -34,48 +34,95 @@ class Canvas extends React.Component {
     this.canvas.addEventListener("mouseout", (e) => {
       this.findxy('out', e)
     }, false);
+
+    this.pixel = this.ctx.createImageData(1, 1);
+    this.pixel.data[0] = 0;
+    this.pixel.data[1] = 0;
+    this.pixel.data[2] = 0;
+    this.pixel.data[3] = 255;
+
+    this.eraser = this.ctx.createImageData(1, 1);
+    this.eraser.data[0] = 0;
+    this.eraser.data[1] = 0;
+    this.eraser.data[2] = 0;
+    this.eraser.data[3] = 0;
   }
 
   draw() {
-    this.drawLine(this.prevX, this.prevY, this.currX, this.currY);
-    this.props.sendDrawMessage(this.prevX, this.prevY, this.currX, this.currY);
+    let points = this.drawLine(this.prevX, this.prevY, this.currX, this.currY);
+    if (points.length > 0) {
+      this.props.sendDrawMessage(points);
+    }
   }
 
   erase() {
-    this.eraseCircle(this.currX, this.currY, 20);
-    this.props.sendEraseMessage(this.currX, this.currY);
+    let points = this.eraseSquare(this.currX, this.currY, 20);
+    if (points.length > 0) {
+      this.props.sendEraseMessage(points);
+    }
   }
 
-  eraseCircle(x, y, r) {
-    this.ctx.save();
-    this.ctx.globalCompositeOperation = "destination-out";
-    this.ctx.beginPath();
-    this.ctx.arc(x, y, r, 0, 2 * Math.PI);
-    this.ctx.fill();
-    this.ctx.closePath();
-    this.ctx.restore();
-    this.ctx.globalCompositeOperation = "source-over";
+  erasePixel(x, y) {
+    this.ctx.putImageData(this.eraser, x, y);
+  }
+
+  erasePoints(points) {
+    for (var i = 0; i < points.length; i++) {
+      let point = points[i];
+      this.erasePixel(point[0], point[1]);
+    }
+  }
+
+  eraseSquare(x, y, r) {
+    var ret = [];
+    for (var i = x - r; i <= x + r; i++) {
+      for (var j = y - r; j <= y + r; j++) {
+        this.erasePixel(i, j);
+        ret.push([i, j]);
+      }
+    }
+    return ret;
+  }
+
+  drawPixel(x, y) {
+    this.ctx.putImageData(this.pixel, x, y);
+  }
+
+  drawPoints(points) {
+    for (var i = 0; i < points.length; i++) {
+      let point = points[i];
+      this.drawPixel(point[0], point[1]);
+    }
   }
 
   drawLine(prevX, prevY, currX, currY) {
-    this.ctx.beginPath();
-    this.ctx.moveTo(prevX, prevY);
-    this.ctx.lineTo(currX, currY);
-    this.ctx.strokeStyle = this.strokeStyle;
-    this.ctx.lineWidth = this.lineWidth;
-    this.ctx.stroke();
-    this.ctx.closePath();
-  }
-
-  processActions(actions) {
-    for (var i = 0; i < actions.length; i++) {
-      let action = actions[i];
-      if (action.t === "DRAW_LINE") {
-        this.drawLine(action.prevX, action.prevY, action.currX, action.currY);
-      } else if (action.t === "ERASE") {
-        this.eraseCircle(action.x, action.y, 20);
+    let dx = currX - prevX;
+    let dy = currY - prevY;
+    let xdel = (dx > 0) ? 1 : -1;
+    let ydel = (dy > 0) ? 1 : -1;
+    var ret = [];
+    if (dx == 0) {
+      for (var y = Math.min(prevY, currY); y <= Math.max(prevY, currY); y++) {
+        this.drawPixel(currX, y);
+        ret.push([currX, y]);
+      }
+      return ret;
+    }
+    let err = -1.0;
+    let derr = Math.abs(dy / dx);
+    var y = prevY;
+    for (var x = prevX; x != currX + xdel; x += xdel) {
+      this.drawPixel(x, y);
+      ret.push([x, y]);
+      err += derr;
+      while (err >= 0.0) {
+        y += ydel;
+        err -= 1.0;
+        this.drawPixel(x, y);
+        ret.push([x, y]);
       }
     }
+    return ret;
   }
 
   drawLines(lines) {

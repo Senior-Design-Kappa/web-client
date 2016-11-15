@@ -81,7 +81,6 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var React = __webpack_require__(3);
-	var Chat = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./Chat\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 	var CanvasVideoPlayer = __webpack_require__(36);
 
 	var Room = function (_React$Component) {
@@ -99,8 +98,7 @@
 	      return React.createElement(
 	        "div",
 	        { className: "main" },
-	        React.createElement(CanvasVideoPlayer, { websocketAddr: this.props.websocketAddr, roomId: this.props.roomId }),
-	        React.createElement(Chat, null)
+	        React.createElement(CanvasVideoPlayer, { websocketAddr: this.props.websocketAddr, roomId: this.props.roomId })
 	      );
 	    }
 	  }]);
@@ -4336,15 +4334,15 @@
 	          case "INIT":
 	            _this2.clientID = message.hash;
 	            _this2.video.syncState(message.videoState);
-	            _this2.canvas.processActions(message.actions);
+	            _this2.canvas.drawPoints(message.points);
 	          case "SYNC_VIDEO":
 	            _this2.received = true;
 	            _this2.video.syncState(message.videoState);
 	          case "SYNC_CANVAS":
-	            if (message.message == "DRAW_LINE") {
-	              _this2.canvas.drawLine(message.prevX, message.prevY, message.currX, message.currY);
+	            if (message.message == "DRAW_POINTS") {
+	              _this2.canvas.drawPoints(message.points);
 	            } else if (message.message == "ERASE") {
-	              _this2.canvas.eraseCircle(message.x, message.y, 20);
+	              _this2.canvas.erasePoints(message.points);
 	            } else if (message.message == "SYNC") {
 	              _this2.canvas.clear();
 	              _this2.canvas.drawLines(message.lines);
@@ -4393,25 +4391,21 @@
 	    }
 	  }, {
 	    key: "sendDrawMessage",
-	    value: function sendDrawMessage(prevX, prevY, currX, currY) {
+	    value: function sendDrawMessage(points) {
 	      var drawMessage = JSON.stringify({
 	        messageType: "SYNC_CANVAS",
-	        message: "DRAW_LINE",
-	        prevX: prevX,
-	        prevY: prevY,
-	        currX: currX,
-	        currY: currY
+	        message: "DRAW_POINTS",
+	        points: points
 	      });
 	      this.ws.send(drawMessage);
 	    }
 	  }, {
 	    key: "sendEraseMessage",
-	    value: function sendEraseMessage(x, y) {
+	    value: function sendEraseMessage(points) {
 	      var eraseMessage = JSON.stringify({
 	        messageType: "SYNC_CANVAS",
 	        message: "ERASE",
-	        x: x,
-	        y: y
+	        points: points
 	      });
 	      this.ws.send(eraseMessage);
 	    }
@@ -4620,12 +4614,13 @@
 	    value: function renderPlayerSources() {
 	      var _this5 = this;
 
+	      var src = "http://clips.vorwaerts-gmbh.de/VfE_html5.mp4";
 	      return React.createElement(
 	        "video",
 	        { ref: function ref(e) {
 	            _this5.video = e;
 	          }, id: "source-video", controls: true, style: { display: "none" } },
-	        React.createElement("source", { src: "https://r13---sn-ab5l6nld.googlevideo.com/videoplayback?requiressl=yes&id=7c45b7b3fede2d87&itag=37&source=webdrive&ttl=transient&app=explorer&ip=165.123.179.30&ipbits=8&expire=1479001163&sparams=expire,id,ip,ipbits,ipbypass,itag,mm,mn,ms,mv,nh,pl,requiressl,source,ttl&signature=7DF18CF13ABD32988BABC2A90AA12CB503E548A6.81AC2568A589BB1BC4819BBCE82D2E8680A81C50&key=cms1&pl=16&cm2rm=sn-a8au-2iae7z&req_id=70df4960142ea3ee&redirect_counter=2&cms_redirect=yes&ipbypass=yes&mm=30&mn=sn-ab5l6nld&ms=nxu&mt=1478990661&mv=m&nh=IgpwcjAzLmxnYTA3KgkxMjcuMC4wLjE", type: "video/mp4" })
+	        React.createElement("source", { src: src, type: "video/mp4" })
 	      );
 	    }
 	  }, {
@@ -4936,53 +4931,103 @@
 	      this.canvas.addEventListener("mouseout", function (e) {
 	        _this2.findxy('out', e);
 	      }, false);
+
+	      this.pixel = this.ctx.createImageData(1, 1);
+	      this.pixel.data[0] = 0;
+	      this.pixel.data[1] = 0;
+	      this.pixel.data[2] = 0;
+	      this.pixel.data[3] = 255;
+
+	      this.eraser = this.ctx.createImageData(1, 1);
+	      this.eraser.data[0] = 0;
+	      this.eraser.data[1] = 0;
+	      this.eraser.data[2] = 0;
+	      this.eraser.data[3] = 0;
 	    }
 	  }, {
 	    key: "draw",
 	    value: function draw() {
-	      this.drawLine(this.prevX, this.prevY, this.currX, this.currY);
-	      this.props.sendDrawMessage(this.prevX, this.prevY, this.currX, this.currY);
+	      var points = this.drawLine(this.prevX, this.prevY, this.currX, this.currY);
+	      if (points.length > 0) {
+	        this.props.sendDrawMessage(points);
+	      }
 	    }
 	  }, {
 	    key: "erase",
 	    value: function erase() {
-	      this.eraseCircle(this.currX, this.currY, 20);
-	      this.props.sendEraseMessage(this.currX, this.currY);
+	      var points = this.eraseSquare(this.currX, this.currY, 20);
+	      if (points.length > 0) {
+	        this.props.sendEraseMessage(points);
+	      }
 	    }
 	  }, {
-	    key: "eraseCircle",
-	    value: function eraseCircle(x, y, r) {
-	      this.ctx.save();
-	      this.ctx.globalCompositeOperation = "destination-out";
-	      this.ctx.beginPath();
-	      this.ctx.arc(x, y, r, 0, 2 * Math.PI);
-	      this.ctx.fill();
-	      this.ctx.closePath();
-	      this.ctx.restore();
-	      this.ctx.globalCompositeOperation = "source-over";
+	    key: "erasePixel",
+	    value: function erasePixel(x, y) {
+	      this.ctx.putImageData(this.eraser, x, y);
+	    }
+	  }, {
+	    key: "erasePoints",
+	    value: function erasePoints(points) {
+	      for (var i = 0; i < points.length; i++) {
+	        var point = points[i];
+	        this.erasePixel(point[0], point[1]);
+	      }
+	    }
+	  }, {
+	    key: "eraseSquare",
+	    value: function eraseSquare(x, y, r) {
+	      var ret = [];
+	      for (var i = x - r; i <= x + r; i++) {
+	        for (var j = y - r; j <= y + r; j++) {
+	          this.erasePixel(i, j);
+	          ret.push([i, j]);
+	        }
+	      }
+	      return ret;
+	    }
+	  }, {
+	    key: "drawPixel",
+	    value: function drawPixel(x, y) {
+	      this.ctx.putImageData(this.pixel, x, y);
+	    }
+	  }, {
+	    key: "drawPoints",
+	    value: function drawPoints(points) {
+	      for (var i = 0; i < points.length; i++) {
+	        var point = points[i];
+	        this.drawPixel(point[0], point[1]);
+	      }
 	    }
 	  }, {
 	    key: "drawLine",
 	    value: function drawLine(prevX, prevY, currX, currY) {
-	      this.ctx.beginPath();
-	      this.ctx.moveTo(prevX, prevY);
-	      this.ctx.lineTo(currX, currY);
-	      this.ctx.strokeStyle = this.strokeStyle;
-	      this.ctx.lineWidth = this.lineWidth;
-	      this.ctx.stroke();
-	      this.ctx.closePath();
-	    }
-	  }, {
-	    key: "processActions",
-	    value: function processActions(actions) {
-	      for (var i = 0; i < actions.length; i++) {
-	        var action = actions[i];
-	        if (action.t === "DRAW_LINE") {
-	          this.drawLine(action.prevX, action.prevY, action.currX, action.currY);
-	        } else if (action.t === "ERASE") {
-	          this.eraseCircle(action.x, action.y, 20);
+	      var dx = currX - prevX;
+	      var dy = currY - prevY;
+	      var xdel = dx > 0 ? 1 : -1;
+	      var ydel = dy > 0 ? 1 : -1;
+	      var ret = [];
+	      if (dx == 0) {
+	        for (var y = Math.min(prevY, currY); y <= Math.max(prevY, currY); y++) {
+	          this.drawPixel(currX, y);
+	          ret.push([currX, y]);
+	        }
+	        return ret;
+	      }
+	      var err = -1.0;
+	      var derr = Math.abs(dy / dx);
+	      var y = prevY;
+	      for (var x = prevX; x != currX + xdel; x += xdel) {
+	        this.drawPixel(x, y);
+	        ret.push([x, y]);
+	        err += derr;
+	        while (err >= 0.0) {
+	          y += ydel;
+	          err -= 1.0;
+	          this.drawPixel(x, y);
+	          ret.push([x, y]);
 	        }
 	      }
+	      return ret;
 	    }
 	  }, {
 	    key: "drawLines",

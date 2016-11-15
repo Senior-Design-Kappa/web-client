@@ -23,15 +23,15 @@ class CanvasVideoPlayer extends React.Component {
         case "INIT":
           this.clientID = message.hash;
           this.video.syncState(message.videoState);
-          this.canvas.processActions(message.actions);
+          this.canvas.drawPoints(message.points);
         case "SYNC_VIDEO":
           this.received = true;
           this.video.syncState(message.videoState);
         case "SYNC_CANVAS":
-          if (message.message == "DRAW_LINE") {
-            this.canvas.drawLine(message.prevX, message.prevY, message.currX, message.currY);
+          if (message.message == "DRAW_POINTS") {
+            this.canvas.drawPoints(message.points);
           } else if (message.message == "ERASE") {
-            this.canvas.eraseCircle(message.x, message.y, 20);
+            this.canvas.erasePoints(message.points);
           } else if (message.message == "SYNC") {
             this.canvas.clear();
             this.canvas.drawLines(message.lines);
@@ -70,24 +70,20 @@ class CanvasVideoPlayer extends React.Component {
     this.ws.send(videoMessage);
   }
 
-  sendDrawMessage(prevX, prevY, currX, currY) {
+  sendDrawMessage(points) {
     let drawMessage = JSON.stringify({
       messageType: "SYNC_CANVAS",
-      message: "DRAW_LINE",
-      prevX: prevX,
-      prevY: prevY,
-      currX: currX,
-      currY: currY,
+      message: "DRAW_POINTS",
+      points: points,
     });
     this.ws.send(drawMessage);
   }
 
-  sendEraseMessage(x, y) {
+  sendEraseMessage(points) {
     let eraseMessage = JSON.stringify({
       messageType: "SYNC_CANVAS",
       message: "ERASE",
-      x: x,
-      y: y,
+      points: points,
     });
     this.ws.send(eraseMessage);
   }

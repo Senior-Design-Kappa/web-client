@@ -4908,6 +4908,7 @@
 	    _this.FILL_STYLE = "black";
 	    _this.LINE_WIDTH = 2;
 	    _this.TTL = 5.0;
+	    _this.ERASE_RADIUS = 8;
 
 	    _this.canvasState = new CanvasState(_this.WIDTH, _this.HEIGHT, _this.props.sendCanvasMessage);
 
@@ -4987,9 +4988,11 @@
 	        this.currY = mouseY;
 	        this.mouseDown = true;
 
-	        var color = new Color(255, 255, 255);
-	        var videoTime = this.props.getVideoTime();
-	        this.addPoint(new Point(this.currX, this.currY, videoTime, videoTime + this.TTL, color));
+	        if (this.ui.state.mode == this.ui.DRAW_LINE) {
+	          var color = new Color(255, 255, 255);
+	          var videoTime = this.props.getVideoTime();
+	          this.addPoint(new Point(this.currX, this.currY, videoTime, videoTime + this.TTL, color));
+	        }
 	      }
 	      if (res == 'up' || res == "out") {
 	        this.mouseDown = false;
@@ -5004,6 +5007,8 @@
 	            var _videoTime = this.props.getVideoTime();
 	            var _color = new Color(255, 255, 255);
 	            this.addLine(new LineSegment(this.prevX, this.prevY, _videoTime, this.currX, this.currY, _videoTime + this.TTL, _color));
+	          } else if (this.ui.state.mode == this.ui.ERASE) {
+	            this.eraseSquare(this.currX, this.currY, this.props.getVideoTime());
 	          }
 	        }
 	      }
@@ -5017,6 +5022,21 @@
 	    key: "addLine",
 	    value: function addLine(line) {
 	      this.canvasState.addPoints(line.getPoints());
+	    }
+	  }, {
+	    key: "eraseSquare",
+	    value: function eraseSquare(x, y, time) {
+	      var erasePoints = [];
+	      for (var i = Math.max(0, x - this.ERASE_RADIUS); i <= Math.min(this.WIDTH, x + this.ERASE_RADIUS); i++) {
+	        for (var j = Math.max(0, y - this.ERASE_RADIUS); j <= Math.min(this.HEIGHT, y + this.ERASE_RADIUS); j++) {
+	          erasePoints.push({
+	            x: i,
+	            y: j,
+	            t1: time
+	          });
+	        }
+	      }
+	      this.canvasState.erasePoints(erasePoints);
 	    }
 	  }, {
 	    key: "draw",
@@ -5220,6 +5240,8 @@
 	    this.width = width;
 	    this.height = height;
 	    this.sendCanvasMessage = sendCanvasMessage;
+
+	    this.EPSILON = 0.000001;
 	  }
 
 	  _createClass(CanvasState, [{
@@ -5266,6 +5288,39 @@
 	      }));
 	    }
 	  }, {
+	    key: "erasePoint",
+	    value: function erasePoint(point) {
+	      this._erasePoint(point);
+	      this.sendCanvasMessage(JSON.stringify({
+	        type: "ERASE",
+	        points: [point]
+	      }));
+	    }
+	  }, {
+	    key: "erasePoints",
+	    value: function erasePoints(points) {
+	      console.log(points);
+	      for (var i = 0; i < points.length; i++) {
+	        this._erasePoint(points[i]);
+	      }
+	      // TODO: make this less hacky, maybe have an actual class?
+	      this.sendCanvasMessage(JSON.stringify({
+	        type: "ERASE",
+	        points: points
+	      }));
+	    }
+	  }, {
+	    key: "_erasePoint",
+	    value: function _erasePoint(erasePoint) {
+	      // TODO: not make this linear
+	      for (var i = 0; i < this.points.length; i++) {
+	        var point = this.points[i];
+	        if (point.x == erasePoint.x && point.y == erasePoint.y && point.t1 <= erasePoint.t1 && erasePoint.t1 <= point.t2) {
+	          point.t2 = erasePoint.t1 - this.EPSILON;
+	        }
+	      }
+	    }
+	  }, {
 	    key: "drawAt",
 	    value: function drawAt(time, drawPoint) {
 	      this._drawState(time, drawPoint);
@@ -5286,6 +5341,10 @@
 	        for (var i = 0; i < message.points.length; i++) {
 	          var point = message.points[i];
 	          this.points.push(new Point(point.x, point.y, point.t1, point.t2, new Color(point.r, point.g, point.b)));
+	        }
+	      } else if (message.type == "ERASE") {
+	        for (var i = 0; i < message.points.length; i++) {
+	          this._erasePoint(message.points[i]);
 	        }
 	      }
 	    }

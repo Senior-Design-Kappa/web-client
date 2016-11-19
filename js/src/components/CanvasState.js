@@ -8,6 +8,8 @@ class CanvasState {
     this.width = width;
     this.height = height;
     this.sendCanvasMessage = sendCanvasMessage;
+
+    this.EPSILON = 0.000001;
   }
 
   addPoint(point) {
@@ -49,6 +51,37 @@ class CanvasState {
     }));
   }
 
+  erasePoint(point) {
+    this._erasePoint(point);
+    this.sendCanvasMessage(JSON.stringify({
+      type: "ERASE",
+      points: [point],
+    }));
+  }
+
+  erasePoints(points) {
+    console.log(points);
+    for (var i = 0; i < points.length; i++) {
+      this._erasePoint(points[i]);
+    }
+    // TODO: make this less hacky, maybe have an actual class?
+    this.sendCanvasMessage(JSON.stringify({
+      type: "ERASE",
+      points: points,
+    }));
+  }
+
+  _erasePoint(erasePoint) {
+    // TODO: not make this linear
+    for (var i = 0; i < this.points.length; i++) {
+      let point = this.points[i];
+      if (point.x == erasePoint.x && point.y == erasePoint.y && 
+          point.t1 <= erasePoint.t1 && erasePoint.t1 <= point.t2) {
+        point.t2 = erasePoint.t1 - this.EPSILON;
+      }
+    }
+  }
+
   drawAt(time, drawPoint) {
     this._drawState(time, drawPoint);
     this.currentTime = time;
@@ -70,6 +103,10 @@ class CanvasState {
         this.points.push(new Point(
           point.x, point.y, point.t1, point.t2, new Color(point.r, point.g, point.b)
         ));
+      }
+    } else if (message.type == "ERASE") {
+      for (var i = 0; i < message.points.length; i++) {
+        this._erasePoint(message.points[i]);
       }
     }
   }

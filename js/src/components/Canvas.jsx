@@ -14,6 +14,7 @@ class Canvas extends React.Component {
     this.FILL_STYLE = "black";
     this.LINE_WIDTH = 2;
     this.TTL = 5.0;
+    this.ERASE_RADIUS = 8;
 
     this.canvasState = new CanvasState(this.WIDTH, this.HEIGHT, this.props.sendCanvasMessage);
 
@@ -78,9 +79,11 @@ class Canvas extends React.Component {
       this.currY = mouseY;
       this.mouseDown = true;
 
-      let color = new Color(255, 255, 255);
-      let videoTime = this.props.getVideoTime();
-      this.addPoint(new Point(this.currX, this.currY, videoTime, videoTime + this.TTL, color));
+      if (this.ui.state.mode == this.ui.DRAW_LINE) {
+        let color = new Color(255, 255, 255);
+        let videoTime = this.props.getVideoTime();
+        this.addPoint(new Point(this.currX, this.currY, videoTime, videoTime + this.TTL, color));
+      }
     }
     if (res == 'up' || res == "out") {
       this.mouseDown = false;
@@ -97,6 +100,8 @@ class Canvas extends React.Component {
           this.addLine(new LineSegment(
             this.prevX, this.prevY, videoTime, this.currX, this.currY, videoTime + this.TTL, color
           ));
+        } else if (this.ui.state.mode == this.ui.ERASE) {
+          this.eraseSquare(this.currX, this.currY, this.props.getVideoTime());
         }
       }
     }
@@ -108,6 +113,20 @@ class Canvas extends React.Component {
 
   addLine(line) {
     this.canvasState.addPoints(line.getPoints());
+  }
+
+  eraseSquare(x, y, time) {
+    var erasePoints = [];
+    for (var i = Math.max(0, x - this.ERASE_RADIUS); i <= Math.min(this.WIDTH, x + this.ERASE_RADIUS); i++) {
+      for (var j = Math.max(0, y - this.ERASE_RADIUS); j <= Math.min(this.HEIGHT, y + this.ERASE_RADIUS); j++) {
+        erasePoints.push({
+          x: i,
+          y: j,
+          t1: time,
+        });
+      }
+    }
+    this.canvasState.erasePoints(erasePoints);
   }
 
   draw() {

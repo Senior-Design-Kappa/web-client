@@ -23,25 +23,31 @@ class CanvasVideoPlayer extends React.Component {
         case "INIT":
           this.clientID = message.hash;
           this.video.syncState(message.videoState);
-          this.canvas.drawPoints(message.points);
+          this.canvas.canvasState.recvInitState(message.canvasState);
+          break;
         case "SYNC_VIDEO":
           this.received = true;
           this.video.syncState(message.videoState);
+          break;
         case "SYNC_CANVAS":
-          if (message.message == "DRAW_POINTS") {
-            this.canvas.drawPoints(message.points);
-          } else if (message.message == "ERASE") {
-            this.canvas.erasePoints(message.points);
-          } else if (message.message == "SYNC") {
-            this.canvas.clear();
-            this.canvas.drawLines(message.lines);
-          }
+          // TODO: Not sure if I should pass it down two levels
+          this.canvas.canvasState.recvCanvasMessage(JSON.parse(message.message));
+          break;
       }
     }
   }
 
   componentDidMount() {
     this.bindSocket();
+    window.requestAnimationFrame(this.drawCanvas.bind(this));
+  }
+
+  drawCanvas() {
+    if (!this.canvas) {
+      return;
+    }
+    this.canvas.draw();
+    window.requestAnimationFrame(this.drawCanvas.bind(this));
   }
 
   render() {
@@ -52,8 +58,8 @@ class CanvasVideoPlayer extends React.Component {
           sendVideoSyncMessage={this.sendVideoSyncMessage.bind(this)} />
         <Canvas
           ref={(c) => {this.canvas = c;}}
-          sendDrawMessage={this.sendDrawMessage.bind(this)}
-          sendEraseMessage={this.sendEraseMessage.bind(this)} />
+          sendCanvasMessage={this.sendCanvasMessage.bind(this)} 
+          getVideoTime={this.getVideoTime.bind(this)} />
       </div>
     );
   }
@@ -70,22 +76,16 @@ class CanvasVideoPlayer extends React.Component {
     this.ws.send(videoMessage);
   }
 
-  sendDrawMessage(points) {
-    let drawMessage = JSON.stringify({
+  sendCanvasMessage(message) {
+    let canvasMessage = JSON.stringify({
       messageType: "SYNC_CANVAS",
-      message: "DRAW_POINTS",
-      points: points,
+      message: message,
     });
-    this.ws.send(drawMessage);
+    this.ws.send(canvasMessage);
   }
 
-  sendEraseMessage(points) {
-    let eraseMessage = JSON.stringify({
-      messageType: "SYNC_CANVAS",
-      message: "ERASE",
-      points: points,
-    });
-    this.ws.send(eraseMessage);
+  getVideoTime() {
+    return this.video.video.currentTime;
   }
 }
 

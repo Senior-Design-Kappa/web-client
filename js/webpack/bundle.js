@@ -5368,7 +5368,7 @@
 	  function CanvasState(width, height, sendCanvasMessage) {
 	    _classCallCheck(this, CanvasState);
 
-	    this.points = [];
+	    this.points = {};
 	    this.currentTime = 0.0;
 	    this.width = width;
 	    this.height = height;
@@ -5404,7 +5404,11 @@
 	  }, {
 	    key: "_addPoint",
 	    value: function _addPoint(point) {
-	      this.points.push(point);
+	      var loc = [point.x, point.y];
+	      if (this.points[loc] === undefined) {
+	        this.points[loc] = [];
+	      }
+	      this.points[[point.x, point.y]].push(point);
 	    }
 	  }, {
 	    key: "addPoints",
@@ -5432,7 +5436,6 @@
 	  }, {
 	    key: "erasePoints",
 	    value: function erasePoints(points) {
-	      console.log(points);
 	      for (var i = 0; i < points.length; i++) {
 	        this._erasePoint(points[i]);
 	      }
@@ -5445,9 +5448,12 @@
 	  }, {
 	    key: "_erasePoint",
 	    value: function _erasePoint(erasePoint) {
-	      // TODO: not make this linear
-	      for (var i = 0; i < this.points.length; i++) {
-	        var point = this.points[i];
+	      var loc = [erasePoint.x, erasePoint.y];
+	      if (this.points[loc] === undefined) {
+	        return;
+	      }
+	      for (var i = 0; i < this.points[loc].length; i++) {
+	        var point = this.points[loc][i];
 	        if (point.x == erasePoint.x && point.y == erasePoint.y && point.t1 <= erasePoint.t1 && erasePoint.t1 <= point.t2) {
 	          point.t2 = erasePoint.t1 - this.EPSILON;
 	        }
@@ -5464,7 +5470,7 @@
 	    value: function recvInitState(state) {
 	      for (var i = 0; i < state.points.length; i++) {
 	        var point = state.points[i];
-	        this.points.push(new Point(point.x, point.y, point.t1, point.t2, new Color(point.r, point.g, point.b)));
+	        this._addPoint(new Point(point.x, point.y, point.t1, point.t2, new Color(point.r, point.g, point.b)));
 	      }
 	    }
 	  }, {
@@ -5473,7 +5479,7 @@
 	      if (message.type == "POINTS") {
 	        for (var i = 0; i < message.points.length; i++) {
 	          var point = message.points[i];
-	          this.points.push(new Point(point.x, point.y, point.t1, point.t2, new Color(point.r, point.g, point.b)));
+	          this._addPoint(new Point(point.x, point.y, point.t1, point.t2, new Color(point.r, point.g, point.b)));
 	        }
 	      } else if (message.type == "ERASE") {
 	        for (var i = 0; i < message.points.length; i++) {
@@ -5492,12 +5498,16 @@
 	  }, {
 	    key: "_drawState",
 	    value: function _drawState(time, drawPoint) {
-	      for (var i = 0; i < this.points.length; i++) {
-	        var point = this.points[i];
-	        if (point.t1 <= time && time <= point.t2) {
-	          drawPoint(point);
+	      var _this = this;
+
+	      Object.keys(this.points).forEach(function (key) {
+	        for (var i = 0; i < _this.points[key].length; i++) {
+	          var point = _this.points[key][i];
+	          if (point.t1 <= time && time <= point.t2) {
+	            drawPoint(point);
+	          }
 	        }
-	      }
+	      });
 	    }
 	  }]);
 

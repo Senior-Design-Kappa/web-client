@@ -71,6 +71,8 @@ class CanvasVideoPlayer extends React.Component {
       videoState: {
         playing: state.playing,
         currentTime: state.currentTime,
+        volume: state.volume,
+        muted: state.muted,
       },
     });
     this.ws.send(videoMessage);

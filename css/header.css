@@ -1,0 +1,19 @@
+body {
+	background-color: #121B1F;
+	color: white;
+	font-family: "Exo 2", sans-serif;
+}
+
+.navbar-above {
+	background-color: #2C3452;
+	border: 0px;
+}
+
+.navbar-above a {
+	color: white;
+}
+
+.navbar-above li > a:hover {
+	background-color: #121B1F;
+}
+

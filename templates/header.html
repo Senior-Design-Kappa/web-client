@@ -34,14 +34,18 @@
           </li>
           {{else}}
           <li>
-            <a href="/auth/login">Login</a>
+            <a href="#" id="loginNavButton">Login</a>
           </li>
           <li>
-            <a href="/auth/register">Register</a>
+            <a href="#" id="registerNavButton">Register</a>
           </li>
+					<link href="/css/login.css" rel="stylesheet" type="text/css" />
+					<script type="text/javascript" src="/js/webpack/login.bundle.js"></script>
           {{end}}
         </ul>
       </div>
     </nav>
+		<div id="loginPopup">
+		</div>
     <div class="container-fluid">
 {{end}}

@@ -13,26 +13,35 @@ class LoginBox extends React.Component {
 		};
 	}
 
-	// TODO: make it so that the box closes when you click outside
 	componentDidMount() {
+		// Buttons on navbar
 		let loginButton = document.getElementById('loginNavButton');
 		loginButton.addEventListener("click", () => {
 			this.setLoginMenu();
-			this.toggleHidden();
+			this.showMenu();
 		});
-		// TODO: there's weird behavior if you click login then register
-		// on the outside
 		let registerButton = document.getElementById('registerNavButton');
 		registerButton.addEventListener("click", () => {
 			this.setRegisterMenu();
-			this.toggleHidden();
+			this.showMenu();
 		});
 
+		// Buttons for navigation on top of menu
 		this.loginMenuButton.addEventListener("click", () => {
 			this.setLoginMenu();
 		});
 		this.registerMenuButton.addEventListener("click", () => {
 			this.setRegisterMenu();
+		});
+
+		// Close overlay
+		this.overlay.addEventListener("click", () => {
+			this.hideMenu();
+		});
+		window.addEventListener("keydown", (e) => {
+			if (e.keyCode === 27) {
+				this.hideMenu();
+			}
 		});
 	}
 
@@ -48,6 +57,18 @@ class LoginBox extends React.Component {
 		});
 	}
 
+	hideMenu() {
+		this.setState({
+			isHidden: true,
+		});
+	}
+
+	showMenu() {
+		this.setState({
+			isHidden: false,
+		});
+	}
+
 	toggleHidden() {
 		this.setState({
 			isHidden: !this.state.isHidden,
@@ -56,6 +77,8 @@ class LoginBox extends React.Component {
 
 	render() {
 		let classNames = "login-box " + 
+			((this.state.isHidden) ? "login-hidden" : "");
+		let overlayClassNames = "login-overlay " +
 			((this.state.isHidden) ? "login-hidden" : "");
 		var loginClassNames = "login-title-button";
 		var registerClassNames = "login-title-button";
@@ -68,21 +91,25 @@ class LoginBox extends React.Component {
 			menuContents = <RegisterMenu />;
 		}
 		return (
-			<div ref={(l) => {this.loginBox = l;}} className={classNames}>
-				<div className="login-title">
-					<div ref={(b) => {this.loginMenuButton = b;}} className={loginClassNames}>
-						<div className="login-title-flex">
-							LOG IN
+			<div>
+				<div ref={(l) => {this.loginBox = l;}} className={classNames}>
+					<div className="login-title">
+						<div ref={(b) => {this.loginMenuButton = b;}} className={loginClassNames}>
+							<div className="login-title-flex">
+								LOG IN
+							</div>
+						</div>
+						<div ref={(b) => {this.registerMenuButton = b;}} className={registerClassNames}>
+							<div className="login-title-flex">
+								REGISTER
+							</div>
 						</div>
 					</div>
-					<div ref={(b) => {this.registerMenuButton = b;}} className={registerClassNames}>
-						<div className="login-title-flex">
-							REGISTER
-						</div>
+					<div>
+						{menuContents}
 					</div>
 				</div>
-				<div>
-					{menuContents}
+				<div ref={(o) => {this.overlay = o;}} className={overlayClassNames}>
 				</div>
 			</div>
 		);

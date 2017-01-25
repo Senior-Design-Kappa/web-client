@@ -6,17 +6,18 @@
 	background-color: #121B1F;
 	border: 1px solid #203040;
 	display: block;
-	height: 250px;
+	height: 300px;
 	left: calc(50vw - 200px);
 	opacity: 1;
 	position: fixed;
-	top: calc(50vh - 125px);
+	top: calc(50vh - 150px);
 	transition: opacity 0.2s ease-in;
 	-webkit-transition: opacity 0.2s ease-in;
 	-moz-transition: opacity 0.2s ease-in;
 	-ms-transition: opacity 0.2s ease-in;
 	-o-transition: opacity 0.2s ease-in;
 	width: 400px;
+	z-index: 2;
 }
 
 .login-title {
@@ -71,4 +72,20 @@
 	padding-top: 5px;
 	padding-bottom: 5px;
 	width: 100%;
+}
+
+.login-overlay {
+	background-color: black;
+	display: inline;
+	height: 100vh;
+	left: 0;
+	opacity: 0.4;
+	position: fixed;
+	top: 0;
+	width: 100vw;
+	z-index: 1;
+}
+
+.login-overlay.login-hidden {
+	display: none;
 }

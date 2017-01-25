@@ -1,6 +1,5 @@
 let React = require("react");
 
-// TODO: actually write this
 class RegisterMenu extends React.Component {
 	constructor(props) {
 		super(props);
@@ -9,7 +8,20 @@ class RegisterMenu extends React.Component {
 	render() {
 		return (
 			<div>
-				Register!
+				<div className="login-content-wrapper">
+					<div className="login-input-wrapper">
+						<input type="text" placeholder="Email Address"></input>
+					</div>
+					<div className="login-input-wrapper">
+						<input type="text" placeholder="Username"></input>
+					</div>
+					<div className="login-input-wrapper">
+						<input type="password" placeholder="Password"></input>
+					</div>
+					<div className="login-input-wrapper">
+						<button>Register</button>
+					</div>
+				</div>
 			</div>
 		);
 	}

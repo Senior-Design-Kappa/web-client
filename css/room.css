@@ -1,3 +1,26 @@
+.canvas-ui {
+  outline: 1px solid black;
+}
+
+.canvas-ui-button.selected {
+  outline: 3px solid black;
+}
+
+.canvas-ui-button {
+  width: 30px;
+  height: 30px;
+  outline: 1px solid black;
+  position: absolute;
+}
+
+.canvas-ui-button > img {
+  width: 22px;
+  height: 22px;
+  position: absolute;
+  top: 4px;
+  left: 4px;
+}
+
 body {
   line-height: 0;
 }

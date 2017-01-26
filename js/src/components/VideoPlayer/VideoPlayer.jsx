@@ -194,9 +194,10 @@ class VideoPlayer extends React.Component {
   }
 
   renderPlayerSources() {
+    let src = "http://clips.vorwaerts-gmbh.de/VfE_html5.mp4";
     return (
       <video ref={(e) => {this.video = e;}} id="source-video" controls style={{display: "none"}}>
-        <source src="https://r5---sn-a8au-2iae.googlevideo.com/videoplayback?requiressl=yes&id=8d4e35c609b91464&itag=22&source=webdrive&ttl=transient&app=explorer&ip=2607:f470:22:10:3c9f:5cba:79be:eaf6&ipbits=8&expire=1479014531&sparams=expire,id,ip,ipbits,itag,mm,mn,ms,mv,pl,requiressl,source,ttl&signature=384177741746F2102724E78866451628B648685F.5E6DEE4EEC68E31908BF82F6AB7B985188C07C70&key=cms1&pl=32&cms_redirect=yes&mm=31&mn=sn-a8au-2iae&ms=au&mt=1479001048&mv=m" type="video/mp4"/>
+        <source src={src} type="video/mp4"/>
       </video>
     );
   }

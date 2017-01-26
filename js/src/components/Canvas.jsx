@@ -1,127 +1,57 @@
 let React = require("react");
 let CanvasUI = require("./CanvasUI");
+let CanvasState = require("./CanvasState");
+let Color = require("./Color");
+let LineSegment = require("./LineSegment");
+let Point = require("./Point");
 
 class Canvas extends React.Component {
   constructor(props) {
     super(props);
-  }
+    this.WIDTH = 800;
+    this.HEIGHT = 600;
+    this.STROKE_STYLE = "black";
+    this.FILL_STYLE = "black";
+    this.LINE_WIDTH = 2;
+    this.TTL = 5.0;
+    this.ERASE_RADIUS = 8;
 
-  clear() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  }
+    this.canvasState = new CanvasState(this.WIDTH, this.HEIGHT, this.props.sendCanvasMessage);
 
-  componentDidMount() {
-    this.flag = false;
-    this.dot_flag = false;
-    this.strokeStyle = "black";
-    this.fillStyle = "black";
-    this.lineWidth = 2;
     this.prevX = 0;
     this.currX = 0;
     this.prevY = 0;
     this.currY = 0;
+  }
+
+  componentDidMount() {
+    this.mouseDown = false;
 
     this.canvas.addEventListener("mousemove", (e) => {
-      this.findxy('move', e)
+      this._processMouseEvent('move', e)
     }, false);
     this.canvas.addEventListener("mousedown", (e) => {
       e.preventDefault();
-      this.findxy('down', e)
+      this._processMouseEvent('down', e)
     }, false);
     this.canvas.addEventListener("mouseup", (e) => {
-      this.findxy('up', e)
+      this._processMouseEvent('up', e)
     }, false);
     this.canvas.addEventListener("mouseout", (e) => {
-      this.findxy('out', e)
+      this._processMouseEvent('out', e)
     }, false);
-  }
 
-  draw() {
-    this.drawLine(this.prevX, this.prevY, this.currX, this.currY);
-    this.props.sendDrawMessage(this.prevX, this.prevY, this.currX, this.currY);
-  }
+    this.pixel = this.ctx.createImageData(1, 1);
+    this.pixel.data[0] = 0;
+    this.pixel.data[1] = 0;
+    this.pixel.data[2] = 0;
+    this.pixel.data[3] = 255;
 
-  erase() {
-    this.eraseCircle(this.currX, this.currY, 20);
-    this.props.sendEraseMessage(this.currX, this.currY);
-  }
-
-  eraseCircle(x, y, r) {
-    this.ctx.save();
-    this.ctx.globalCompositeOperation = "destination-out";
-    this.ctx.beginPath();
-    this.ctx.arc(x, y, r, 0, 2 * Math.PI);
-    this.ctx.fill();
-    this.ctx.closePath();
-    this.ctx.restore();
-    this.ctx.globalCompositeOperation = "source-over";
-  }
-
-  drawLine(prevX, prevY, currX, currY) {
-    this.ctx.beginPath();
-    this.ctx.moveTo(prevX, prevY);
-    this.ctx.lineTo(currX, currY);
-    this.ctx.strokeStyle = this.strokeStyle;
-    this.ctx.lineWidth = this.lineWidth;
-    this.ctx.stroke();
-    this.ctx.closePath();
-  }
-
-  processActions(actions) {
-    for (var i = 0; i < actions.length; i++) {
-      let action = actions[i];
-      if (action.t === "DRAW_LINE") {
-        this.drawLine(action.prevX, action.prevY, action.currX, action.currY);
-      } else if (action.t === "ERASE") {
-        this.eraseCircle(action.x, action.y, 20);
-      }
-    }
-  }
-
-  drawLines(lines) {
-    for (var i = 0; i < lines.length; i++) {
-      let line = lines[i];
-      this.drawLine(line.prevX, line.prevY, line.currX, line.currY);
-    }
-  }
-
-  findxy(res, e) {
-    let canvasRect = this.canvas.getBoundingClientRect();
-    let mouseX = e.clientX - canvasRect.left;
-    let mouseY = e.clientY - canvasRect.top;
-    if (res == 'down') {
-      this.prevX = this.currX;
-      this.prevY = this.currY;
-      this.currX = mouseX;
-      this.currY = mouseY;
-      this.flag = true;
-      this.dot_flag = true;
-      if (this.dot_flag) {
-        this.ctx.beginPath();
-        this.ctx.fillStyle = this.fillStyle;
-        this.ctx.fillRect(this.currX, this.currY, 2, 2);
-        this.ctx.closePath();
-        this.dot_flag = false;
-      }
-    }
-    if (res == 'up' || res == "out") {
-      this.flag = false;
-    }
-    if (res == 'move') {
-      if (this.flag) {
-        this.prevX = this.currX;
-        this.prevY = this.currY;
-        this.currX = mouseX;
-        this.currY = mouseY;
-        if (this.ui.state.mode == this.ui.DRAW_LINE) {
-          console.log("draw");
-          this.draw();
-        } else if (this.ui.state.mode == this.ui.ERASE) {
-          console.log("erase");
-          this.erase();
-        }
-      }
-    }
+    this.eraser = this.ctx.createImageData(1, 1);
+    this.eraser.data[0] = 0;
+    this.eraser.data[1] = 0;
+    this.eraser.data[2] = 0;
+    this.eraser.data[3] = 0;
   }
 
   render() {
@@ -133,15 +63,94 @@ class Canvas extends React.Component {
         </div>
         <canvas
           ref={(c) => {this.canvas = c; this.ctx = this.canvas.getContext('2d');}}
-          id="whiteboard-canvas" width="800" height="600" />
+          id="whiteboard-canvas" width={this.WIDTH} height={this.HEIGHT} />
       </div>
     );
+  }
+  
+  _processMouseEvent(res, e) {
+    let canvasRect = this.canvas.getBoundingClientRect();
+    let mouseX = e.clientX - canvasRect.left;
+    let mouseY = e.clientY - canvasRect.top;
+    if (res == 'down') {
+      this.prevX = this.currX;
+      this.prevY = this.currY;
+      this.currX = mouseX;
+      this.currY = mouseY;
+      this.mouseDown = true;
+
+      if (this.ui.state.mode == this.ui.DRAW_LINE) {
+        let color = new Color(255, 255, 255);
+        let videoTime = this.props.getVideoTime();
+        this.addPoint(new Point(this.currX, this.currY, videoTime, videoTime + this.TTL, color));
+      }
+    }
+    if (res == 'up' || res == "out") {
+      this.mouseDown = false;
+    }
+    if (res == 'move') {
+      if (this.mouseDown) {
+        this.prevX = this.currX;
+        this.prevY = this.currY;
+        this.currX = mouseX;
+        this.currY = mouseY;
+        if (this.ui.state.mode == this.ui.DRAW_LINE) {
+          let videoTime = this.props.getVideoTime();
+          let color = new Color(255, 255, 255);
+          this.addLine(new LineSegment(
+            this.prevX, this.prevY, videoTime, this.currX, this.currY, videoTime + this.TTL, color
+          ));
+        } else if (this.ui.state.mode == this.ui.ERASE) {
+          this.eraseSquare(this.currX, this.currY, this.props.getVideoTime());
+        }
+      }
+    }
+  }
+
+  addPoint(point) {
+    this.canvasState.addPoint(point);
+  }
+
+  addLine(line) {
+    this.canvasState.addPoints(line.getPoints());
+  }
+
+  eraseSquare(x, y, time) {
+    var erasePoints = [];
+    for (var i = Math.max(0, x - this.ERASE_RADIUS); i <= Math.min(this.WIDTH, x + this.ERASE_RADIUS); i++) {
+      for (var j = Math.max(0, y - this.ERASE_RADIUS); j <= Math.min(this.HEIGHT, y + this.ERASE_RADIUS); j++) {
+        erasePoints.push({
+          x: i,
+          y: j,
+          t1: time,
+        });
+      }
+    }
+    this.canvasState.erasePoints(erasePoints);
+  }
+
+  draw() {
+    this._clear();
+    this.canvasState.drawAt(this.props.getVideoTime(), this._drawPoint.bind(this));
+  }
+
+  _drawPoint(point) {
+    this.pixel.data[0] = point.r;
+    this.pixel.data[1] = point.g;
+    this.pixel.data[2] = point.b;
+    this.pixel.data[3] = 255;
+    this.ctx.putImageData(this.pixel, point.x, point.y);
+  }
+  
+
+  _clear() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 }
 
 Canvas.propTypes = {
-  sendDrawMessage: React.PropTypes.func,
-  sendEraseMessage: React.PropTypes.func,
+  sendCanvasMessage: React.PropTypes.func,
+  getVideoTime: React.PropTypes.func,
 };
 
 module.exports = Canvas;

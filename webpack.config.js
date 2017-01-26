@@ -8,6 +8,7 @@ module.exports = {
   entry: {
 		room: path.resolve("./js/src/app.js"),
 		login: path.resolve("./js/src/view/loginView.js"),
+		loggedInHeader: path.resolve("./js/src/view/loggedInHeaderView.js"),
 	},
   module: {
     loaders: [

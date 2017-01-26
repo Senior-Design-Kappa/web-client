@@ -5,8 +5,9 @@ let LoginBox = require("../components/LoginBox");
 
 $(() => {
 	let loginPopup = document.getElementById('loginPopup');
+	let showLogin = (loginPopup.getAttribute("showLogin") === "true") ? true : false;
 	ReactDOM.render(
-		<LoginBox />,
+		<LoginBox showLogin={showLogin} />,
 		loginPopup
 	);
 });

@@ -74,6 +74,11 @@
 	width: 100%;
 }
 
+.login-error-message {
+	color: red;
+	height: 20px;
+}
+
 .login-overlay {
 	background-color: black;
 	display: inline;

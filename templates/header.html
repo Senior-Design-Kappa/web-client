@@ -32,6 +32,10 @@
           <li class="active">
             <a href="/">Welcome, {{.Username}}</a>
           </li>
+					<li>
+						<a href="#" id="logoutNavButton">Logout</a>
+					</li>
+					<script type="text/javascript" src="/js/webpack/loggedInHeader.bundle.js"></script>
           {{else}}
           <li>
             <a href="#" id="loginNavButton">Login</a>
@@ -45,7 +49,10 @@
         </ul>
       </div>
     </nav>
-		<div id="loginPopup">
-		</div>
+		{{if .ShowLogin}}
+		<div id="loginPopup" showLogin=true></div>
+		{{else}}
+		<div id="loginPopup" showLogin=false></div>
+		{{end}}
     <div class="container-fluid">
 {{end}}

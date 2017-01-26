@@ -7,8 +7,10 @@ let RegisterMenu = require("./RegisterMenu");
 class LoginBox extends React.Component {
 	constructor(props) {
 		super(props);
+		console.log(props);
+		console.log(this.props);
 		this.state = {
-			isHidden: true,
+			isHidden: !this.props.showLogin,
 			menu: "login",
 		};
 	}
@@ -115,5 +117,9 @@ class LoginBox extends React.Component {
 		);
 	}
 }
+
+LoginBox.propTypes = {
+	showLogin: React.PropTypes.bool,
+};
 
 module.exports = LoginBox;

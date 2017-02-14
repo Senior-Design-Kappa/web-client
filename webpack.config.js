@@ -5,7 +5,11 @@ var MINIFY = false;
 
 module.exports = {
   context: "./",
-  entry: path.resolve("./js/src/app.js"),
+  entry: {
+		room: path.resolve("./js/src/app.js"),
+		login: path.resolve("./js/src/view/loginView.js"),
+		loggedInHeader: path.resolve("./js/src/view/loggedInHeaderView.js"),
+	},
   module: {
     loaders: [
       {
@@ -20,7 +24,7 @@ module.exports = {
   },
   output: {
     path: "./js/webpack/",
-    filename: "bundle.js",
+    filename: "[name].bundle.js",
   },
   plugins: MINIFY ? [
     new webpack.optimize.UglifyJsPlugin({

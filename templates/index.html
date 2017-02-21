@@ -1,7 +1,26 @@
 {{template "header" .}}
-  <link href="/css/index.css" rel="stylesheet"></link>
-  <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-    <div> Hello World! </div>
+  <link href="/css/index.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <div class="container-fluid">
+    <div class="row">
+      {{template "sidebar" .}}
+      <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <div class="rooms-body">
+          <div class="row">
+            {{range $i, $e := .Rooms}}
+            <div class="col-sm-2">
+              <div class="card">
+                <img class="card-img-top" src="http://puu.sh/ucGZJ/ba60c419c7.svg" alt="Card image cap">
+                <div class="card-block">
+                  <span class="card-text card-text-left">Room {{$e}}</span>
+                  <span class="card-text card-text-right"><i class="fa fa-user" aria-hidden="true"></i> {{index $.Participants $i}}</span>
+                </div>
+              </div>
+            </div>
+            {{end}}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-{{template "sidebar" .}}
 {{template "footer" .}}

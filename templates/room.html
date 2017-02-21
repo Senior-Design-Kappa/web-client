@@ -1,6 +1,10 @@
 {{template "header" .}}
-{{template "sidebar" .}}
-  <link href="/css/room.css" rel="stylesheet" type="text/css" />
-  <script src="/js/webpack/room.bundle.js" type="text/javascript"></script>
-  <div id="content" websocketAddr="{{.WebsocketAddr}}" roomId="{{.RoomId}}"></div>
+<div class="container-fluid">
+  <div class="row">
+    {{template "sidebar" .}}
+    <link href="/css/room.css" rel="stylesheet" type="text/css" />
+    <script src="/js/webpack/room.bundle.js" type="text/javascript"></script>
+    <div id="content" websocketAddr="{{.WebsocketAddr}}" roomId="{{.RoomId}}"></div>
+  </div>
+</div>
 {{template "footer" .}}

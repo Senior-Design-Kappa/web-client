@@ -13,8 +13,8 @@ class Canvas extends React.Component {
   componentDidMount() {
     this.flag = false;
     this.dot_flag = false;
-    this.strokeStyle = "black";
-    this.fillStyle = "black";
+    this.strokeStyle = "green";
+    this.fillStyle = "green";
     this.lineWidth = 2;
     this.prevX = 0;
     this.currX = 0;

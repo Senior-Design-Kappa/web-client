@@ -1,11 +1,13 @@
 let React = require("react");
-let VideoPlayer = require("./VideoPlayer/VideoPlayer")
-let Canvas = require("./Canvas")
+let VideoPlayer = require("./VideoPlayer/VideoPlayer");
+let YoutubePlayer = require("./YoutubePlayer/YoutubePlayer");
+let Canvas = require("./Canvas");
 class CanvasVideoPlayer extends React.Component {
   constructor(props) {
     super(props);
     this.ws = new WebSocket(props.websocketAddr + props.roomId);
     this.received = false;
+    this.videoType = "YOUTUBE"; // hardcoded for debugging
   }
 
   bindSocket() {
@@ -44,16 +46,42 @@ class CanvasVideoPlayer extends React.Component {
     this.bindSocket();
   }
 
+  renderVideoPlayer() {
+    switch(this.videoType) {
+      case "YOUTUBE":
+        return (
+          <YoutubePlayer
+            ref={(vp) => {this.video = vp;}}
+            sendVideoSyncMessage={this.sendVideoSyncMessage.bind(this)} />
+        );
+        break;
+      case "MP4":
+        return (
+          <VideoPlayer
+            ref={(vp) => {this.video = vp;}}
+            sendVideoSyncMessage={this.sendVideoSyncMessage.bind(this)} />
+        );
+        break;
+      default:
+
+    }
+
+  }
+
+  renderCanvas() {
+    return (
+      <Canvas
+        ref={(c) => {this.canvas = c;}}
+        sendDrawMessage={this.sendDrawMessage.bind(this)}
+        sendEraseMessage={this.sendEraseMessage.bind(this)} />
+    );
+  }
+
   render() {
     return (
       <div className="main">
-        <VideoPlayer
-          ref={(vp) => {this.video = vp;}}
-          sendVideoSyncMessage={this.sendVideoSyncMessage.bind(this)} />
-        <Canvas
-          ref={(c) => {this.canvas = c;}}
-          sendDrawMessage={this.sendDrawMessage.bind(this)}
-          sendEraseMessage={this.sendEraseMessage.bind(this)} />
+        {this.renderVideoPlayer()}
+        {this.renderCanvas()}
       </div>
     );
   }

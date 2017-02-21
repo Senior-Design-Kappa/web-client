@@ -34,7 +34,7 @@ class YoutubePlayer extends React.Component {
 
   constructor(props) {
     super(props);
-    this.REFRESH_RATE = 200;
+    this.REFRESH_RATE = 500;
     this.OPTS = {
       height: '585',
       width: '960',
@@ -109,6 +109,7 @@ class YoutubePlayer extends React.Component {
       // If expected state is null, the component hasn't been initialized
       // Otherwise, see if video state is the same as expected state
       if (this.expectedState !== null && !this.compareVideoState()) {
+        console.log("SENDING:",videoState);
         this.props.sendVideoSyncMessage(videoState);
         this.expectedState = videoState;
         this.expectedState.timestamp = Date.now();
@@ -129,33 +130,40 @@ class YoutubePlayer extends React.Component {
     let expectedTime = this.expectedState.currentTime + 
       ((this.expectedState.playing) ? 0.001 * (Date.now() - this.expectedState.timestamp) : 0);
     if (Math.abs(this.player.getCurrentTime() - expectedTime) > this.VIDEO_TIME_EPSILON) {
+      console.log("divergence", this.player.getCurrentTime(), expectedTime);
       return false;
     }
     // TODO: handle buffering, etc.
     if (
         (this.player.getPlayerState() === this.YT_PAUSED && this.expectedState.playing === true) ||
         (this.player.getPlayerState() === this.YT_PLAYING && this.expectedState.playing === false)) {
+      console.log("not playing");
       return false;
     }
     if (this.player.getVolume() !== this.expectedState.volume) {
+      console.log("volume");
       return false;
     }
     if (this.player.isMuted() !== this.expectedState.muted) {
+      console.log("muted");
       return false;
     }
     return true;
   }
 
   getVideoState() { // TODO: needs to be refactored
+    let playerState = this.player.getPlayerState();
+    let playing = (playerState === this.YT_PLAYING);
     return {
       currentTime: this.player.getCurrentTime(),
-      playing: this.player.getPlayerState() == 1,
+      playing: playing,
       volume: this.player.getVolume(),
       muted: this.player.isMuted(),
     };
   }
 
   setVideoState(newState) {
+    console.log("SETTING:",newState);
     this.player.seekTo(newState.currentTime);
     this.player.setVolume(newState.volume);
     if (newState.playing) {

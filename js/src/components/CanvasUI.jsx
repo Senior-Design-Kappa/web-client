@@ -4,17 +4,30 @@ let CanvasUIButton = require("./CanvasUIButton");
 class CanvasUI extends React.Component {
   constructor(props) {
     super(props);
-    this.DRAW_LINE = 0;
-    this.ERASE = 1;
+    this.DRAW_LINE = 1;
+    this.ERASE = 2;
 
     this.state = {
+      active: false,
       mode: this.DRAW_LINE,
     };
   }
 
-  onButtonClick(mode) {
+  onButtonClick(id) {
+    if (id === 0) {
+      this.toggleActive();
+    } else {
+      this.setState({
+        mode: id,
+      });
+    }
+  }
+
+  toggleActive() {
+    let newActive = !this.state.active;
+    this.props.setWhiteboardActive(newActive);
     this.setState({
-      mode: mode,
+      active: newActive,
     });
   }
 
@@ -23,7 +36,15 @@ class CanvasUI extends React.Component {
   }
 
   render() {
-    let buttonImages = ["/imgs/glyphicons-31-pencil.png", "/imgs/glyphicons-551-erase.png"];
+    let inactiveButtonImages = [
+      "/imgs/glyphicons-235-brush.png",
+    ];
+    let activeButtonImages = [
+      "/imgs/glyphicons-208-remove.png", 
+      "/imgs/glyphicons-31-pencil.png", 
+      "/imgs/glyphicons-551-erase.png",
+    ];
+    let buttonImages = (this.state.active) ? activeButtonImages : inactiveButtonImages;
     let buttons = buttonImages.map(
       (img, i) => {
         return (
@@ -37,8 +58,14 @@ class CanvasUI extends React.Component {
         );
       }
     );
+    let uiHeight = buttonImages.length * 45 + 15;
     return (
-      <div width="60" height="105" className="canvas-ui">
+      <div 
+        style={{
+          width: 60,
+          height: uiHeight,
+        }} 
+        className="canvas-ui">
         {buttons}
       </div>
     );
@@ -46,6 +73,7 @@ class CanvasUI extends React.Component {
 }
 
 CanvasUI.propTypes = {
+  setWhiteboardActive: React.PropTypes.func.isRequired,
 };
 
 module.exports = CanvasUI;

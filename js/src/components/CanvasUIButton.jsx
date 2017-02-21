@@ -8,7 +8,6 @@ let ICON_HEIGHT = 22;
 class CanvasUIButton extends React.Component {
   constructor(props) {
     super(props);
-    this.img = props.img;
   }
 
   render() {
@@ -22,13 +21,13 @@ class CanvasUIButton extends React.Component {
         className={`canvas-ui-button ${selectedClass}`} 
         style={buttonStyle} 
         onClick={this.props.onClick} >
-        <img src={this.img} />
+        <img src={this.props.img} />
       </div>
     );
   }
 }
 
-CanvasUIButton.proTypes = {
+CanvasUIButton.propTypes = {
   x: React.PropTypes.number.isRequired,
   y: React.PropTypes.number.isRequired,
   onClick: React.PropTypes.func.isRequired,

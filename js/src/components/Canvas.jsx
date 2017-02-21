@@ -8,8 +8,8 @@ let Point = require("./Point");
 class Canvas extends React.Component {
   constructor(props) {
     super(props);
-    this.WIDTH = 800;
-    this.HEIGHT = 600;
+    this.WIDTH = 960;
+    this.HEIGHT = 585;
     this.STROKE_STYLE = "black";
     this.FILL_STYLE = "black";
     this.LINE_WIDTH = 2;
@@ -22,6 +22,10 @@ class Canvas extends React.Component {
     this.currX = 0;
     this.prevY = 0;
     this.currY = 0;
+
+    this.state = {
+      whiteboardActive: false,
+    };
   }
 
   componentDidMount() {
@@ -41,11 +45,13 @@ class Canvas extends React.Component {
       this._processMouseEvent('out', e)
     }, false);
 
-    this.pixel = this.ctx.createImageData(1, 1);
-    this.pixel.data[0] = 0;
-    this.pixel.data[1] = 0;
-    this.pixel.data[2] = 0;
-    this.pixel.data[3] = 255;
+    this.pixel = this.ctx.createImageData(2, 2);
+    for (var i = 0; i < 4; i++) {
+      this.pixel.data[4 * i + 0] = 0;
+      this.pixel.data[4 * i + 1] = 0;
+      this.pixel.data[4 * i + 2] = 0;
+      this.pixel.data[4 * i + 3] = 255;
+    }
 
     this.eraser = this.ctx.createImageData(1, 1);
     this.eraser.data[0] = 0;
@@ -55,15 +61,18 @@ class Canvas extends React.Component {
   }
 
   render() {
+    let canvasClass = (this.state.whiteboardActive) ? "active" : "";
     return (
       <div className="whiteboard">
         <div id="canvas-ui">
           <CanvasUI
-            ref={(c) => {this.ui = c;}} />
+            ref={(c) => {this.ui = c;}} 
+            setWhiteboardActive={this.setWhiteboardActive.bind(this)} />
         </div>
         <canvas
-          ref={(c) => {this.canvas = c; this.ctx = this.canvas.getContext('2d');}}
-          id="whiteboard-canvas" width={this.WIDTH} height={this.HEIGHT} />
+          ref={(c) => {this.canvas = c; this.ctx = (this.canvas) ? this.canvas.getContext('2d') : null;}}
+          id="whiteboard-canvas" width={this.WIDTH} height={this.HEIGHT} 
+          className={canvasClass} />
       </div>
     );
   }
@@ -145,6 +154,12 @@ class Canvas extends React.Component {
 
   _clear() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  setWhiteboardActive(isActive) {
+    this.setState({
+      whiteboardActive: isActive,
+    });
   }
 }
 

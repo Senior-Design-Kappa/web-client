@@ -1,6 +1,7 @@
 let React = require("react");
-let VideoPlayer = require("./VideoPlayer/VideoPlayer")
-let Canvas = require("./Canvas")
+let VideoPlayer = require("./VideoPlayer/VideoPlayer");
+let YoutubeVideoPlayer = require("./YoutubePlayer/YoutubePlayer");
+let Canvas = require("./Canvas");
 class CanvasVideoPlayer extends React.Component {
   constructor(props) {
     super(props);
@@ -53,12 +54,12 @@ class CanvasVideoPlayer extends React.Component {
   render() {
     return (
       <div className="main">
-        <VideoPlayer
+        <YoutubeVideoPlayer
           ref={(vp) => {this.video = vp;}}
           sendVideoSyncMessage={this.sendVideoSyncMessage.bind(this)} />
         <Canvas
           ref={(c) => {this.canvas = c;}}
-          sendCanvasMessage={this.sendCanvasMessage.bind(this)} 
+          sendCanvasMessage={this.sendCanvasMessage.bind(this)}
           getVideoTime={this.getVideoTime.bind(this)} />
       </div>
     );
@@ -87,7 +88,7 @@ class CanvasVideoPlayer extends React.Component {
   }
 
   getVideoTime() {
-    return this.video.video.currentTime;
+    return this.video.getCurrentTime();
   }
 }
 

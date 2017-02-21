@@ -32,16 +32,19 @@
 
   transition: text-shadow 0.5s;
 
+  cursor: pointer;
 }
 
 .nav-sidebar-button:hover {
-  text-decoration: none;
+  color: #05A4D8;
   background-color: #444F77;
+  text-decoration: none;
   text-shadow:0 -1px 0 rgba(0,0,0,1),0 0px 30px rgba(0,180,255,1),0 0px 50px rgba(0,180,255,1);
   transition: text-shadow 0.5s;
 }
 
 .nav-sidebar-button:active {
+  color: #05A4D8;
   background-color: #444F77;
   text-decoration: none;
   box-shadow: 0 5px #313959;
@@ -58,17 +61,14 @@
 }
 
 .nav-sidebar-opts > li > a {
+  background-color: #2C3452;
   color: #FFFFFF;
-}
-
-.nav-sidebar-opts li > a:active {
-	background-color: #2C3452;
-}
-
-.nav-sidebar-opts li > a:visited {
-	background-color: #2C3452;
 }
 
 .nav-sidebar-opts li > a:hover {
 	background-color: #182429;
+}
+
+.nav-sidebar-opts .active {
+  background-color: #182429;
 }

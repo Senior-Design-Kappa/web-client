@@ -1,14 +1,20 @@
 {{define "sidebar"}}
-<link href="/css/sidebar.css" rel="stylesheet" type="text/css" />
-    <div class="col-sm-3 col-md-2 sidebar">
-      <button class="nav-sidebar-button">+</button>
-      <ul class="nav nav-sidebar navbar-above nav-sidebar-opts">
-        <li>
-          <a href="#">My Rooms</a>
-        </li>
-        <li>
-          <a href="#">Shared Rooms</a>
-        </li>
-      </ul>
-    </div>
+<link href="/css/sidebar.css" rel="stylesheet" type="text/css">
+<script
+src="https://code.jquery.com/jquery-3.1.1.min.js"
+integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+crossorigin="anonymous"></script>
+<div class="col-sm-3 col-md-2 sidebar">
+  <a class="nav-sidebar-button" href="/room/492">+</a>
+  <ul class="nav nav-sidebar nav-sidebar-opts">
+    <li>
+      <a id="my-rooms-link"
+      onclick="$('.rooms-body').hide(); $('#my-rooms-body').show(); $('#my-rooms-link').addClass('active'); $('#shared-rooms-link').removeClass('active')">My Rooms</a>
+    </li>
+    <li>
+      <a id="shared-rooms-link"
+      onclick="$('.rooms-body').hide(); $('#shared-rooms-body').show(); $('#shared-rooms-link').addClass('active'); $('#my-rooms-link').removeClass('active')">Shared Rooms</a>
+    </li>
+  </ul>
+</div>
 {{end}}

@@ -4,9 +4,14 @@ body {
 	font-family: "Exo 2", sans-serif;
 }
 
+.navbar-header {
+	padding-left: 10px;
+}
+
 .navbar-above {
 	background-color: #2C3452;
 	border: 0px;
+  margin-bottom: 0px;
 }
 
 .navbar-above a {

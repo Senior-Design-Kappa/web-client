@@ -1,0 +1,74 @@
+/* The side navigation bar */
+.sidebar {
+  position: absolute;
+  background-color: #21273D;
+  padding-right: 0px;
+  height: 100%;
+  top: 50px;
+  bottom: 0px;
+  left: 0px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.nav-sidebar-button {
+  background-color: #525D84;
+  color: #05A4D8;
+  margin: 30px 30px 30px 0px;
+  padding-bottom: 10px;
+  width: 50%;
+  position: relative;
+  left: 25%;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 75px;
+  outline: 0px;
+  user-select: none;
+
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 9px #313959;
+
+  transition: text-shadow 0.5s;
+
+}
+
+.nav-sidebar-button:hover {
+  text-decoration: none;
+  background-color: #444F77;
+  text-shadow:0 -1px 0 rgba(0,0,0,1),0 0px 30px rgba(0,180,255,1),0 0px 50px rgba(0,180,255,1);
+  transition: text-shadow 0.5s;
+}
+
+.nav-sidebar-button:active {
+  background-color: #444F77;
+  text-decoration: none;
+  box-shadow: 0 5px #313959;
+  transform: translateY(4px);
+}
+
+
+.container-fluid {
+  padding-left: 0px;
+}
+
+.nav-sidebar-opts {
+  margin-left: 10px;
+}
+
+.nav-sidebar-opts > li > a {
+  color: #FFFFFF;
+}
+
+.nav-sidebar-opts li > a:active {
+	background-color: #2C3452;
+}
+
+.nav-sidebar-opts li > a:visited {
+	background-color: #2C3452;
+}
+
+.nav-sidebar-opts li > a:hover {
+	background-color: #182429;
+}

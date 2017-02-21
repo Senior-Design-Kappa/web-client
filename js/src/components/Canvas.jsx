@@ -8,8 +8,8 @@ let Point = require("./Point");
 class Canvas extends React.Component {
   constructor(props) {
     super(props);
-    this.WIDTH = 800;
-    this.HEIGHT = 600;
+    this.WIDTH = 960;
+    this.HEIGHT = 585;
     this.STROKE_STYLE = "black";
     this.FILL_STYLE = "black";
     this.LINE_WIDTH = 2;

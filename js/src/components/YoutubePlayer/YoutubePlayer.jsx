@@ -1,4 +1,4 @@
-import Youtube from "react-youtube";
+let Youtube = require("react-youtube").default;
 let React = require("react");
 const EVENTS = [
     'canplay',
@@ -34,111 +34,154 @@ class YoutubePlayer extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      videoID: "HAIDqt2aUek",
-      player: null,
+    this.REFRESH_RATE = 200;
+    this.OPTS = {
+      height: '585',
+      width: '960',
+      playerVars: {
+        autoplay: 1,
+        disablekb: 1,
+        enablejsapi: 1,
+        fs: 0,
+        rel: 0,
+        showinfo: 0,
+      },
     };
+    this.VIDEO_TIME_EPSILON = 0.5;
 
+    // youtube state constants from youtube iframe API
+    // See: https://developers.google.com/youtube/iframe_api_reference
+    this.YT_UNSTARTED = -1;
+    this.YT_ENDED = 0;
+    this.YT_PLAYING = 1;
+    this.YT_PAUSED = 2;
+    this.YT_BUFFERING = 3;
+    this.YT_CUED = 5;
+
+    this.player = null;
+    this.expectedState = null;
+    this.receivedState = null;
+    this.state = {
+      videoID: "T_V_6UBa8RQ",
+    };
   }
 
-  componentDidMount() {
-    window.x = this;
-    this.videoPlayer.addEventListener('sync', (e) => {
-      this.props.sendVideoSyncMessage(this.getSyncState());
-    })
-  }
-
-  onReady(event) {
-    console.log("Youtube video ready!");
+  changeVideoID(id) {
     this.setState({
-      player: event.target,
+      videoID: id,
     });
   }
 
-
-  play(sync) {
-    this.state.player.playVideo();
-    this.loop();
-    if (!sync) {
-      this.videoPlayer.dispatchEvent(new Event('sync'));
-    }
-  }
-
-  pause(sync) {
-    this.state.player.pauseVideo();
-    if (!sync) {
-      this.videoPlayer.dispatchEvent(new Event('sync'));
-    }
-  }
-
-  playPause() {
-    if (this.state.player.getPlayerState() == 1) {
-      this.pause(false);
+  getCurrentTime() {
+    if (this.player === null) {
+      return 0;
     } else {
-      this.play(false);
+      return this.player.getCurrentTime();
     }
   }
 
-  seekTo(time, sync) {
-    this.state.player.setCurrentTime(time);
-    if (!sync) {
-      this.videoPlayer.dispatchEvent(new Event('sync'));
-    }
+  onReady(event) {
+    this.player = event.target;
+    setTimeout(this.resolveStateDifferences.bind(this), this.REFRESH_RATE);
   }
 
-  setVolume(volume, sync) {
-    this.state.player.setVolume(volume);
-    if (!sync) {
-      this.videoPlayer.dispatchEvent(new Event('sync'));
+  // resolveStateDifferences is called every this.REFRESH_RATE milliseconds, to synchronize the necessary states
+  // (described below):
+  //
+  // There are three states to this component:
+  // - video state (i.e. what the youtube player is actually showing)
+  // - sync state (i.e. what the last known state is, needed to detect video state changes)
+  // - received state (i.e. what the last state update received from elsewhere is)
+  // Ideally, the three should be the same, but there are two cases where they can diverge:
+  // - User changes video state
+  //   - Sync state should be set to the new video state, then a message
+  //     is sent out to change everyone else's received state
+  // - Video state changes elsewhere, updating received state
+  //   - Sync state and video state are changed to received state, received state is then set to null
+  // Priority is given to received state: if it is not null, video and sync state are changed to it.
+  // Otherwise, if it is null, the above procedure is followed to update other clients' received state
+
+  resolveStateDifferences() {
+    // If no received state, check if user has changed video state
+    if (this.receivedState === null) {
+      let videoState = this.getVideoState();
+
+      // If expected state is null, the component hasn't been initialized
+      // Otherwise, see if video state is the same as expected state
+      if (this.expectedState !== null && !this.compareVideoState()) {
+        this.props.sendVideoSyncMessage(videoState);
+        this.expectedState = videoState;
+        this.expectedState.timestamp = Date.now();
+      }
+
+    } else if (this.receivedState !== null) {
+      let newState = this.receivedState;
+      this.receivedState = null;
+      this.setVideoState(newState);
+      this.expectedState = newState;
+      this.expectedState.timestamp = Date.now();
     }
+    setTimeout(this.resolveStateDifferences.bind(this), this.REFRESH_RATE);
   }
 
-  mute(sync) {
-    this.state.player.mute();
-    this.updateState();
-    if (!sync) {
-      this.videoPlayer.dispatchEvent(new Event('sync'));
+  compareVideoState() {
+    // TODO: handle different playback speeds?
+    let expectedTime = this.expectedState.currentTime + 
+      ((this.expectedState.playing) ? 0.001 * (Date.now() - this.expectedState.timestamp) : 0);
+    if (Math.abs(this.player.getCurrentTime() - expectedTime) > this.VIDEO_TIME_EPSILON) {
+      return false;
     }
+    // TODO: handle buffering, etc.
+    if (
+        (this.player.getPlayerState() === this.YT_PAUSED && this.expectedState.playing === true) ||
+        (this.player.getPlayerState() === this.YT_PLAYING && this.expectedState.playing === false)) {
+      return false;
+    }
+    if (this.player.getVolume() !== this.expectedState.volume) {
+      return false;
+    }
+    if (this.player.isMuted() !== this.expectedState.muted) {
+      return false;
+    }
+    return true;
   }
 
-  unmute(sync) {
-    this.state.player.unmute();
-    this.updateState();
-    if (!sync) {
-      this.videoPlayer.dispatchEvent(new Event('sync'));
-    }
-  }
-
-
-  getSyncState() { // TODO: needs to be refactored
+  getVideoState() { // TODO: needs to be refactored
     return {
-      currentTime: this.state.player.getCurrentTime(),
-      playing: this.state.player.getPlayerState() == 1,
-      volume: this.state.player.getVolume(),
-      muted: this.state.player.isMuted(),
+      currentTime: this.player.getCurrentTime(),
+      playing: this.player.getPlayerState() == 1,
+      volume: this.player.getVolume(),
+      muted: this.player.isMuted(),
     };
   }
 
-  syncState(newState) { // TODO: needs to be refactored
-    this.seekTo(newState.currentTime);
-    this.setVolume(newState.volume, true);
+  setVideoState(newState) {
+    this.player.seekTo(newState.currentTime);
+    this.player.setVolume(newState.volume);
     if (newState.playing) {
-      this.play(true);
+      this.player.playVideo();
     } else {
-      this.pause(true);
+      this.player.pauseVideo();
     }
     if (newState.muted) {
-      this.mute(true);
+      this.player.mute();
     } else {
-      this.unmute(true);
+      this.player.unMute();
     }
   }
 
+  syncState(newState) {
+    this.receivedState = newState;
+    return;
+  }
 
   render() {
     return (
-      <div ref={(e) => {this.videoPlayer = e;}} className="video-player">
-        <Youtube videoID={this.state.videoID} onReady={this.onReady.bind(this)} />
+      <div ref={(e) => {this.videoPlayer = e;}} className="video-player" id="yt-player">
+        <Youtube 
+          videoId={this.state.videoID} 
+          onReady={this.onReady.bind(this)} 
+          opts={this.OPTS} />
       </div>
     );
   }

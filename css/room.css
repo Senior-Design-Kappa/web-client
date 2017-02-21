@@ -31,10 +31,15 @@ body {
 
 #canvas-ui {
   position: absolute;
-  left: 800px;
+  left: 960px;
   top: 0px;
-  z-index: 2px;
+  z-index: 2;
   border: 1px solid black;
+}
+
+.whiteboard {
+  display: none;
+  visibility: hidden;
 }
 
 #whiteboard-canvas {
@@ -48,8 +53,8 @@ body {
   position: absolute;
   left: 0;
   top: 0;
-  width: 800px;
-  height: 640px;
+  width: 960px;
+  height: 585px;
 }
 
 .video-canvas {

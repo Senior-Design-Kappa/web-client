@@ -54,7 +54,7 @@ class CanvasVideoPlayer extends React.Component {
   render() {
     return (
       <div className="main">
-        <VideoPlayer
+        <YoutubeVideoPlayer
           ref={(vp) => {this.video = vp;}}
           sendVideoSyncMessage={this.sendVideoSyncMessage.bind(this)} />
         <Canvas
@@ -88,7 +88,7 @@ class CanvasVideoPlayer extends React.Component {
   }
 
   getVideoTime() {
-    return this.video.video.currentTime;
+    return this.video.getCurrentTime();
   }
 }
 

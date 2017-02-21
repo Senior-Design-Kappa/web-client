@@ -1,0 +1,13 @@
+.main {
+  padding: 20px 20px 20px 35px;
+}
+
+.card-text-left {
+  padding-left: 1px;
+  float: left;
+}
+
+.card-text-right {
+  padding-right: 4px;
+  float: right;
+}

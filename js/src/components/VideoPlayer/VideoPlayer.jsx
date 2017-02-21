@@ -194,10 +194,10 @@ class VideoPlayer extends React.Component {
   }
 
   renderPlayerSources() {
-    let videoSource = "http://clips.vorwaerts-gmbh.de/VfE_html5.mp4";
+    let src = "http://clips.vorwaerts-gmbh.de/VfE_html5.mp4";
     return (
       <video ref={(e) => {this.video = e;}} id="source-video" controls style={{display: "none"}}>
-        <source src={videoSource} type="video/mp4"/>
+        <source src={src} type="video/mp4"/>
       </video>
     );
   }

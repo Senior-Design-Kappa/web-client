@@ -1,3 +1,28 @@
+.canvas-ui {
+  background: #6173b7;
+  outline: 1px solid black;
+}
+
+.canvas-ui-button.selected {
+  outline: 3px solid black;
+}
+
+.canvas-ui-button {
+  background: white;
+  width: 30px;
+  height: 30px;
+  outline: 1px solid black;
+  position: relative;
+}
+
+.canvas-ui-button > img {
+  width: 22px;
+  height: 22px;
+  position: relative;
+  top: 4px;
+  left: 4px;
+}
+
 body {
   line-height: 0;
 }
@@ -8,25 +33,30 @@ body {
 
 #canvas-ui {
   position: absolute;
-  left: 800px;
+  left: 960px;
   top: 0px;
-  z-index: 2px;
+  z-index: 2;
   border: 1px solid black;
 }
 
 #whiteboard-canvas {
+  pointer-events: none;
   position: absolute;
   left: 0;
   top: 0;
   z-index: 1;
 }
 
+#whiteboard-canvas.active {
+  pointer-events: auto;
+}
+
 .video-player {
-  position: absolute;
+  position: relative;
   left: 0;
   top: 0;
-  width: 800px;
-  height: 640px;
+  width: 960px;
+  height: 585px;
 }
 
 .video-canvas {

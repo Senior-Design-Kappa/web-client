@@ -1,6 +1,6 @@
 let React = require("react");
 let VideoPlayer = require("./VideoPlayer/VideoPlayer");
-let YoutubePlayer = require("./YoutubePlayer/YoutubePlayer");
+let YoutubeVideoPlayer = require("./YoutubePlayer/YoutubePlayer");
 let Canvas = require("./Canvas");
 class CanvasVideoPlayer extends React.Component {
   constructor(props) {
@@ -25,25 +25,31 @@ class CanvasVideoPlayer extends React.Component {
         case "INIT":
           this.clientID = message.hash;
           this.video.syncState(message.videoState);
-          this.canvas.processActions(message.actions);
+          this.canvas.canvasState.recvInitState(message.canvasState);
+          break;
         case "SYNC_VIDEO":
           this.received = true;
           this.video.syncState(message.videoState);
+          break;
         case "SYNC_CANVAS":
-          if (message.message == "DRAW_LINE") {
-            this.canvas.drawLine(message.prevX, message.prevY, message.currX, message.currY);
-          } else if (message.message == "ERASE") {
-            this.canvas.eraseCircle(message.x, message.y, 20);
-          } else if (message.message == "SYNC") {
-            this.canvas.clear();
-            this.canvas.drawLines(message.lines);
-          }
+          // TODO: Not sure if I should pass it down two levels
+          this.canvas.canvasState.recvCanvasMessage(JSON.parse(message.message));
+          break;
       }
     }
   }
 
   componentDidMount() {
     this.bindSocket();
+    window.requestAnimationFrame(this.drawCanvas.bind(this));
+  }
+
+  drawCanvas() {
+    if (!this.canvas) {
+      return;
+    }
+    this.canvas.draw();
+    window.requestAnimationFrame(this.drawCanvas.bind(this));
   }
 
   renderVideoPlayer() {
@@ -80,8 +86,13 @@ class CanvasVideoPlayer extends React.Component {
   render() {
     return (
       <div className="main">
-        {this.renderVideoPlayer()}
-        {this.renderCanvas()}
+        <YoutubeVideoPlayer
+          ref={(vp) => {this.video = vp;}}
+          sendVideoSyncMessage={this.sendVideoSyncMessage.bind(this)} />
+        <Canvas
+          ref={(c) => {this.canvas = c;}}
+          sendCanvasMessage={this.sendCanvasMessage.bind(this)}
+          getVideoTime={this.getVideoTime.bind(this)} />
       </div>
     );
   }
@@ -100,26 +111,16 @@ class CanvasVideoPlayer extends React.Component {
     this.ws.send(videoMessage);
   }
 
-  sendDrawMessage(prevX, prevY, currX, currY) {
-    let drawMessage = JSON.stringify({
+  sendCanvasMessage(message) {
+    let canvasMessage = JSON.stringify({
       messageType: "SYNC_CANVAS",
-      message: "DRAW_LINE",
-      prevX: prevX,
-      prevY: prevY,
-      currX: currX,
-      currY: currY,
+      message: message,
     });
-    this.ws.send(drawMessage);
+    this.ws.send(canvasMessage);
   }
 
-  sendEraseMessage(x, y) {
-    let eraseMessage = JSON.stringify({
-      messageType: "SYNC_CANVAS",
-      message: "ERASE",
-      x: x,
-      y: y,
-    });
-    this.ws.send(eraseMessage);
+  getVideoTime() {
+    return this.video.getCurrentTime();
   }
 }
 

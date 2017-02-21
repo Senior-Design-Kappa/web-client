@@ -1,10 +1,18 @@
 {{define "sidebar"}}
-<div class=sidebar-nav>
-  <div class="button new-room-button">
-  </div>
-  <div class="button my-rooms-button">
-  </div>
-  <div class="button shared-rooms-button">
-  </div>
-</div>
+<link href="/css/sidebar.css" rel="stylesheet" type="text/css" />
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-3 col-md-2 sidebar">
+      <button class="nav-sidebar-button">
+        +
+      </button>
+      <ul class="nav nav-sidebar navbar-above nav-sidebar-opts">
+        <li>
+          <a href="#">My Rooms</a>
+        </li>
+        <li>
+          <a href="#">Shared Rooms</a>
+        </li>
+      </ul>
+    </div>
 {{end}}

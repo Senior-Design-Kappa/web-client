@@ -1,5 +1,6 @@
 .DS_Store
 js/build
+js/webpack
 /node_modules
 .*.swp
 web

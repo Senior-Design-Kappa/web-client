@@ -1,6 +1,6 @@
 let React = require("react");
 let VideoPlayer = require("./VideoPlayer/VideoPlayer");
-let YoutubeVideoPlayer = require("./YoutubePlayer/YoutubePlayer");
+let YoutubePlayer = require("./YoutubePlayer/YoutubePlayer");
 let Canvas = require("./Canvas");
 class CanvasVideoPlayer extends React.Component {
   constructor(props) {
@@ -8,6 +8,9 @@ class CanvasVideoPlayer extends React.Component {
     this.ws = new WebSocket(props.websocketAddr + props.roomId);
     this.received = false;
     this.videoType = "YOUTUBE"; // hardcoded for debugging
+    this.state = {
+      videoId: props.videoId,
+    };
   }
 
   bindSocket() {
@@ -58,7 +61,8 @@ class CanvasVideoPlayer extends React.Component {
         return (
           <YoutubePlayer
             ref={(vp) => {this.video = vp;}}
-            sendVideoSyncMessage={this.sendVideoSyncMessage.bind(this)} />
+            sendVideoSyncMessage={this.sendVideoSyncMessage.bind(this)} 
+            videoID={this.state.videoId} />
         );
         break;
       case "MP4":
@@ -86,9 +90,10 @@ class CanvasVideoPlayer extends React.Component {
   render() {
     return (
       <div className="main">
-        <YoutubeVideoPlayer
+        <YoutubePlayer
           ref={(vp) => {this.video = vp;}}
-          sendVideoSyncMessage={this.sendVideoSyncMessage.bind(this)} />
+          sendVideoSyncMessage={this.sendVideoSyncMessage.bind(this)} 
+          videoId={this.state.videoId} />
         <Canvas
           ref={(c) => {this.canvas = c;}}
           sendCanvasMessage={this.sendCanvasMessage.bind(this)}
@@ -123,5 +128,11 @@ class CanvasVideoPlayer extends React.Component {
     return this.video.getCurrentTime();
   }
 }
+
+CanvasVideoPlayer.propTypes = {
+  websocketAddr: React.PropTypes.string.isRequired,
+  roomId: React.PropTypes.string.isRequired,
+  videoId: React.PropTypes.string.isRequired,
+};
 
 module.exports = CanvasVideoPlayer;

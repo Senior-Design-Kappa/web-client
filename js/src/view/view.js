@@ -7,8 +7,9 @@ $(() => {
   var content = document.getElementById('content');
   var websocketAddr = content.getAttribute('websocketAddr');
   var roomId = content.getAttribute('roomId');
+  var videoId = content.getAttribute('videoId');
   ReactDOM.render(
-    <Room websocketAddr={websocketAddr} roomId={roomId} />,
+    <Room websocketAddr={websocketAddr} roomId={roomId} videoId={videoId} />,
     content
   );
 });

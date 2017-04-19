@@ -4,6 +4,7 @@
 src="https://code.jquery.com/jquery-3.1.1.min.js"
 integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
 crossorigin="anonymous"></script>
+<script src="/js/webpack/sidebar.bundle.js"></script>
 <div class="col-sm-3 col-md-2 sidebar">
   <button class="new-room nav-sidebar-button" data-toggle="modal" data-target="#new-room-modal">+</button>
   <ul class="nav nav-sidebar nav-sidebar-opts">
@@ -24,10 +25,10 @@ crossorigin="anonymous"></script>
           <h4 class="modal-title">Create A New Room</h4>
         </div>
         <div class="modal-body">
-          <input class="modal-input" placeholder="Enter a Youtube link"></input>
+          <input class="modal-input" id="video-link-input" placeholder="Enter a Youtube link"></input>
         </div>
         <div class="modal-footer">
-          <button onclick="window.location.href='/room/492'" type="button" class="modal-button" data-dismiss="modal">Create Room</button>
+          <button id="createRoomButton" type="button" class="modal-button" data-dismiss="modal">Create Room</button>
         </div>
       </div>
 

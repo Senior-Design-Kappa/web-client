@@ -62,13 +62,13 @@ class YoutubePlayer extends React.Component {
     this.expectedState = null;
     this.receivedState = null;
     this.state = {
-      videoID: "T_V_6UBa8RQ",
+      videoId: props.videoId,
     };
   }
 
   changeVideoID(id) {
     this.setState({
-      videoID: id,
+      videoId: id,
     });
   }
 
@@ -187,7 +187,7 @@ class YoutubePlayer extends React.Component {
     return (
       <div ref={(e) => {this.videoPlayer = e;}} className="video-player" id="yt-player">
         <Youtube 
-          videoId={this.state.videoID} 
+          videoId={this.state.videoId} 
           onReady={this.onReady.bind(this)} 
           opts={this.OPTS} />
       </div>
@@ -196,6 +196,7 @@ class YoutubePlayer extends React.Component {
 }
 
 YoutubePlayer.propTypes = {
+  videoId: React.PropTypes.string.isRequired,
   sendVideoSyncMessage: React.PropTypes.func,
 };
 

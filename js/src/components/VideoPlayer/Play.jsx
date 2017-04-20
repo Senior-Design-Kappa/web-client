@@ -4,10 +4,10 @@ class Play extends React.Component {
     super(props);
   }
 
-  shouldComponentUpdate(nextProps) {
+  shouldComponentUpdate(nextProps, nextState) {
     return this.props.isPlaying !== nextProps.isPlaying;
   }
-  
+
   render() {
     return (
       <div

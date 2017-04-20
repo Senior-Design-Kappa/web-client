@@ -23,26 +23,34 @@ class VideoPlayerUI extends React.Component {
       })
     });
 
+    this.state = this.props.state;
   }
 
   componentDidMount() {
   }
 
+  componentWillReceiveProps(nextProps) {
+    this.setState(nextProps.state);
+  }
 
   render() {
     return (
       <div className="player-controls">
         <Play
-          {...this.props}
-          {...this.state} />
+          isPlaying={this.state.isPlaying}
+          playPause={this.props.playPause}
+          />
         <ProgressBar
-          {...this.props}
-          {...this.state}
+          percentagePlayed={this.state.percentagePlayed}
+          duration={this.state.duration}
+          seek={this.props.seek}
           {...this.eventHandlers}
           />
         <Volume
-          {...this.props}
-          {...this.state}
+          volume={this.state.volume}
+          muted={this.state.muted}
+          toggleMute={this.props.toggleMute}
+          setVolume={this.props.setVolume}
           {...this.eventHandlers}
           />
       </div>

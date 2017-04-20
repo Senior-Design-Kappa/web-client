@@ -90,7 +90,7 @@ class CanvasVideoPlayer extends React.Component {
   render() {
     return (
       <div className="main">
-        <YoutubePlayer
+        <VideoPlayer
           ref={(vp) => {this.video = vp;}}
           sendVideoSyncMessage={this.sendVideoSyncMessage.bind(this)} 
           videoId={this.state.videoId} />

@@ -1,5 +1,7 @@
 let React = require("react");
 let VideoPlayerUI = require("./VideoPlayerUI");
+let Youtube = require("react-youtube").default;
+
 const EVENTS = [
     'canplay',
     'canplaythrough',
@@ -34,60 +36,117 @@ class VideoPlayer extends React.Component {
 
   constructor(props) {
     super(props);
-    this.video = {};
+    this.tempState = null;
+    this.video = null;
     this.audio = {};
     this.timeStamp = Date.now();
+
+    // Youtube API opts
+    this.OPTS = {
+      height: '585',
+      width: '960',
+      playerVars: {
+        autoplay: 1,
+        controls: 0,
+        disablekb: 1,
+        enablejsapi: 1,
+        fs: 0,
+        rel: 0,
+        showinfo: 0,
+      },
+    };
+    // youtube state constants from youtube iframe API
+    // See: https://developers.google.com/youtube/iframe_api_reference
+    this.YT_UNSTARTED = -1;
+    this.YT_ENDED = 0;
+    this.YT_PLAYING = 1;
+    this.YT_PAUSED = 2;
+    this.YT_BUFFERING = 3;
+    this.YT_CUED = 5;
+
+
+    this.state = {
+      isPlaying: false,
+      muted: false,
+      currentTime: 0, 
+      volume: 0,
+      videoId: props.videoId,
+    };
   }
 
   componentDidMount() {
-    window.x = this;
-    this.videoPlayer.addEventListener('sync', (e) => {
-      this.props.sendVideoSyncMessage(this.getSyncState());
-    })
-    EVENTS.forEach((event) => {
-      this.video.addEventListener(event, (e) => {
-        this.updateState();
-        this.drawFrame();
-      });
-    })
+    // NOTE: due to the way the youtube player works, use onReady instead of this
   }
 
   componentWillUnmount() {
   }
 
-  drawFrame() {
-    this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
+  getCurrentTime() {
+    if (this.video === null) {
+      return 0;
+    } else {
+      return this.video.getCurrentTime();
+    }
   }
 
   loop() {
-    let delta = Date.now() - this.timeStamp
+    let delta = Date.now() - this.timeStamp;
+    this.timeStamp = Date.now();
     if (delta > FRAME_RATE) {
-      this.drawFrame();
-      if (!this.video.paused) {
-        this.animationFrame = requestAnimationFrame(() => {this.loop()});
-      } else {
-        cancelAnimationFrame(this.animationFrame);
-      }
+      this.updateProgress();
+    }
+    if (this.state.isPlaying) {
+      this.animationFrame = requestAnimationFrame(this.loop.bind(this));
+    } else {
+      cancelAnimationFrame(this.animationFrame);
+    }
+  }
+
+  onReady(event) {
+    window.x = this;
+    this.video = event.target;
+
+    this.videoPlayer.addEventListener('sync', (e) => {
+      this.props.sendVideoSyncMessage(this.getSyncState());
+    })
+    EVENTS.forEach((event) => {
+      this.video.addEventListener(event, (e) => {
+        this.updateProgress();
+      });
+    })
+    this.loop();
+
+    if (this.tempState !== null) {
+      this.syncState(this.tempState);
+      this.tempState = null;
     }
   }
 
   play(sync) {
-    this.video.play();
+    this.setState({
+      isPlaying: true,
+    }, () => {
+      if (!sync) {
+        this.videoPlayer.dispatchEvent(new Event('sync'));
+      }
+    });
+    this.video.playVideo();
     this.loop();
-    if (!sync) {
-      this.videoPlayer.dispatchEvent(new Event('sync'));
-    }
   }
 
   pause(sync) {
-    this.video.pause();
-    if (!sync) {
-      this.videoPlayer.dispatchEvent(new Event('sync'));
-    }
+    this.setState({
+      isPlaying: false,
+    }, () => {
+      if (!sync) {
+        this.videoPlayer.dispatchEvent(new Event('sync'));
+      }
+    });
+    this.video.pauseVideo();
   }
 
   playPause() {
-    if (!this.video.paused) {
+    if (this.state.isPlaying) {
       this.pause(false);
     } else {
       this.play(false);
@@ -95,61 +154,87 @@ class VideoPlayer extends React.Component {
   }
 
   seek(time, force, sync) {
-    this.video.currentTime = time;
+    this.video.seekTo(time, true);
     if (force) {
-      this.updateState();
-    }
-    if (!sync) {
-      this.videoPlayer.dispatchEvent(new Event('sync'));
+      // We track this time separately, since the YouTube player getCurrentTime has some delay
+      this.syncTime = time;
+      this.setState({
+        currentTime: time,
+      }, () => {
+        if (!sync) {
+          this.videoPlayer.dispatchEvent(new Event('sync'));
+        }
+        this.loop();
+      });
     }
   }
 
   setVolume(volume, force, sync) {
-    this.video.volume = volume;
+    this.video.setVolume(volume);
     if (force) {
-      this.updateState();
-    }
-    if (!sync) {
-      this.videoPlayer.dispatchEvent(new Event('sync'));
+      this.setState({
+        volume: volume,
+      }, () => {
+        if (!sync) {
+          this.videoPlayer.dispatchEvent(new Event('sync'));
+        }
+      });
     }
   }
 
   mute(sync) {
-    this.video.mute = true;
-    this.updateState();
-    if (!sync) {
-      this.videoPlayer.dispatchEvent(new Event('sync'));
-    }
+    this.video.mute();
+    this.setState({
+      muted: true,
+    }, () => {
+      if (!sync) {
+        this.videoPlayer.dispatchEvent(new Event('sync'));
+      }
+    });
   }
 
   unmute(sync) {
-    this.video.mute = false;
-    this.updateState();
-    if (!sync) {
-      this.videoPlayer.dispatchEvent(new Event('sync'));
-    }
+    this.video.unMute();
+    this.setState({
+      muted: false,
+    }, () => {
+      if (!sync) {
+        this.videoPlayer.dispatchEvent(new Event('sync'));
+      }
+    });
   }
 
   toggleMute(force) {
-    this.video.muted = !this.video.muted;
-    if (force) {
-      this.updateState();
+    if (this.state.muted) {
+      this.unmute(false);
+    } else {
+      this.mute(false);
     }
   }
 
+  sendSync() {
+    this.props.sendVideoSyncMessage(this.getSyncState());
+  }
+
   getSyncState() { // TODO: needs to be refactored
-    return {
-      currentTime: this.video.currentTime,
-      playing: !this.video.paused,
-      volume: this.video.volume,
-      muted: this.video.muted,
+    let ret = {
+      currentTime: this.syncTime || this.video.getCurrentTime(),
+      playing: this.state.isPlaying,
+      volume: this.state.volume,
+      muted: this.state.muted,
     };
+    this.syncTime = undefined;
+    return ret;
   }
 
   syncState(newState) { // TODO: needs to be refactored
-    this.video.currentTime = newState.currentTime;
+    if (this.video === null) {
+      this.tempState = newState;
+      return;
+    }
+    this.seek(newState.currentTime, true, true);
     this.setVolume(newState.volume, true, true);
-    console.log(newState);
+    console.log("received:", newState);
     if (newState.playing) {
       this.play(true);
     } else {
@@ -162,17 +247,11 @@ class VideoPlayer extends React.Component {
     }
   }
 
-  updateState() { // TODO: needs to be refactored
-    this.state = {
-      duration: this.video.duration,
-      currentTime: this.video.currentTime,
-      isPlaying: !this.video.paused,
-      muted: this.video.muted,
-      volume: this.video.volume,
-      buffered: this.video.buffered,
-      percentagePlayed: this.video.currentTime / this.video.duration * 100,
-    };
-    this.videoPlayerUI.setState(this.state);
+  updateProgress() {
+    this.setState({
+      percentagePlayed: this.video.getCurrentTime() / this.video.getDuration() * 100,
+      duration: this.video.getDuration(),
+    });
   }
 
   renderPlayerUI() {
@@ -194,12 +273,12 @@ class VideoPlayer extends React.Component {
   }
 
   renderPlayerSources() {
-    let src = "http://clips.vorwaerts-gmbh.de/VfE_html5.mp4";
     return (
-      <video ref={(e) => {this.video = e;}} id="source-video" controls style={{display: "none"}}>
-        <source src={src} type="video/mp4"/>
-      </video>
-    );
+      <Youtube 
+        videoId={this.state.videoId} 
+        onReady={this.onReady.bind(this)} 
+        opts={this.OPTS} />
+     );
   }
 
   renderPlayerCanvas() {
@@ -212,7 +291,6 @@ class VideoPlayer extends React.Component {
   render() {
     return (
       <div ref={(e) => {this.videoPlayer = e;}} className="video-player">
-        {this.renderPlayerCanvas()}
         {this.renderPlayerSources()}
         {this.renderPlayerUI()}
       </div>
@@ -222,6 +300,7 @@ class VideoPlayer extends React.Component {
 
 VideoPlayer.propTypes = {
   sendVideoSyncMessage: React.PropTypes.func,
+  videoId: React.PropTypes.string.isRequired,
 };
 
 module.exports = VideoPlayer;

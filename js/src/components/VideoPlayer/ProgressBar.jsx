@@ -25,7 +25,6 @@ class Progress extends React.Component {
 
   shouldComponentUpdate(nextProps) {
     return this.props.seek !== nextProps.seek ||
-          //  this.props.percentageBuffered !== nextProps.percentageBuffered ||
            this.percentagePlayed !== nextProps.percentagePlayed ||
            this.props.duration !== nextProps.duration;
   }

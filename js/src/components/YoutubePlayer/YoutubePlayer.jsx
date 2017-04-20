@@ -40,6 +40,7 @@ class YoutubePlayer extends React.Component {
       width: '960',
       playerVars: {
         autoplay: 1,
+        controls: 0,
         disablekb: 1,
         enablejsapi: 1,
         fs: 0,

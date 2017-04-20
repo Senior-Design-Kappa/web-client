@@ -24,7 +24,7 @@ class Canvas extends React.Component {
     this.currY = 0;
 
     this.state = {
-      whiteboardActive: false,
+      whiteboardActive: true,
     };
   }
 
@@ -157,9 +157,9 @@ class Canvas extends React.Component {
   }
 
   setWhiteboardActive(isActive) {
-    this.setState({
+    /*this.setState({
       whiteboardActive: isActive,
-    });
+    });*/
   }
 }
 

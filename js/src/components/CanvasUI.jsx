@@ -4,23 +4,26 @@ let CanvasUIButton = require("./CanvasUIButton");
 class CanvasUI extends React.Component {
   constructor(props) {
     super(props);
-    this.DRAW_LINE = 1;
-    this.ERASE = 2;
+    this.DRAW_LINE = 0;
+    this.ERASE = 1;
 
     this.state = {
-      active: false,
+      active: true,
       mode: this.DRAW_LINE,
     };
   }
 
   onButtonClick(id) {
-    if (id === 0) {
+    /*if (id === 0) {
       this.toggleActive();
     } else {
       this.setState({
         mode: id,
       });
-    }
+    }*/
+    this.setState({
+      mode: id,
+    });
   }
 
   toggleActive() {
@@ -36,7 +39,7 @@ class CanvasUI extends React.Component {
   }
 
   render() {
-    let inactiveButtonImages = [
+    /*let inactiveButtonImages = [
       "/imgs/glyphicons-235-brush.png",
     ];
     let activeButtonImages = [
@@ -44,7 +47,11 @@ class CanvasUI extends React.Component {
       "/imgs/glyphicons-31-pencil.png", 
       "/imgs/glyphicons-551-erase.png",
     ];
-    let buttonImages = (this.state.active) ? activeButtonImages : inactiveButtonImages;
+    let buttonImages = (this.state.active) ? activeButtonImages : inactiveButtonImages;*/
+    let buttonImages = [
+      "/imgs/glyphicons-31-pencil.png", 
+      "/imgs/glyphicons-551-erase.png",
+    ];
     let buttons = buttonImages.map(
       (img, i) => {
         return (
@@ -58,7 +65,7 @@ class CanvasUI extends React.Component {
         );
       }
     );
-    let uiHeight = buttonImages.length * 45 + 15;
+    let uiHeight = buttonImages.length * 45 + 45;
     return (
       <div 
         style={{

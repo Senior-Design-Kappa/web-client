@@ -8,29 +8,13 @@ class CanvasUI extends React.Component {
     this.ERASE = 1;
 
     this.state = {
-      active: true,
       mode: this.DRAW_LINE,
     };
   }
 
   onButtonClick(id) {
-    /*if (id === 0) {
-      this.toggleActive();
-    } else {
-      this.setState({
-        mode: id,
-      });
-    }*/
     this.setState({
       mode: id,
-    });
-  }
-
-  toggleActive() {
-    let newActive = !this.state.active;
-    this.props.setWhiteboardActive(newActive);
-    this.setState({
-      active: newActive,
     });
   }
 
@@ -39,15 +23,6 @@ class CanvasUI extends React.Component {
   }
 
   render() {
-    /*let inactiveButtonImages = [
-      "/imgs/glyphicons-235-brush.png",
-    ];
-    let activeButtonImages = [
-      "/imgs/glyphicons-208-remove.png", 
-      "/imgs/glyphicons-31-pencil.png", 
-      "/imgs/glyphicons-551-erase.png",
-    ];
-    let buttonImages = (this.state.active) ? activeButtonImages : inactiveButtonImages;*/
     let buttonImages = [
       "/imgs/glyphicons-31-pencil.png", 
       "/imgs/glyphicons-551-erase.png",
@@ -80,7 +55,6 @@ class CanvasUI extends React.Component {
 }
 
 CanvasUI.propTypes = {
-  setWhiteboardActive: React.PropTypes.func.isRequired,
 };
 
 module.exports = CanvasUI;

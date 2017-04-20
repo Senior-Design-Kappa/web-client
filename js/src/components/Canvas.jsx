@@ -66,8 +66,7 @@ class Canvas extends React.Component {
       <div className="whiteboard">
         <div id="canvas-ui">
           <CanvasUI
-            ref={(c) => {this.ui = c;}} 
-            setWhiteboardActive={this.setWhiteboardActive.bind(this)} />
+            ref={(c) => {this.ui = c;}} />
         </div>
         <canvas
           ref={(c) => {this.canvas = c; this.ctx = (this.canvas) ? this.canvas.getContext('2d') : null;}}
@@ -144,22 +143,13 @@ class Canvas extends React.Component {
   }
 
   _drawPoint(point) {
-    this.pixel.data[0] = point.r;
-    this.pixel.data[1] = point.g;
-    this.pixel.data[2] = point.b;
-    this.pixel.data[3] = 255;
-    this.ctx.putImageData(this.pixel, point.x, point.y);
+    this.ctx.fillStyle = "rgba(" + point.r + "," + point.g + "." + point.b + ",255)";
+    this.ctx.fillRect(point.x, point.y, 1, 1);
   }
   
 
   _clear() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  }
-
-  setWhiteboardActive(isActive) {
-    /*this.setState({
-      whiteboardActive: isActive,
-    });*/
   }
 }
 
